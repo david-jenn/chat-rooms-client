@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import { io } from 'socket.io-client';
 
-const URL = 'http://localhost:5000';
+const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com';
 
 function App() {
   const messagesEndRef = useRef(null);
@@ -183,7 +183,7 @@ function App() {
           </div>
         )}
       </div>
-      <footer className="p-2 bg-primary text-light">Talk Rooms 2022</footer>
+      <footer className="p-2 bg-primary text-light">Talk Rooms - David Jenn - 2022</footer>
     </div>
   );
 }
