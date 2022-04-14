@@ -20,6 +20,7 @@ function App() {
   const [username, setUsername] = useState('');
   const [room, setRoom] = useState('');
   const [signedIn, setSignedIn] = useState(false);
+  
 
   useEffect(() => {
 
@@ -30,10 +31,10 @@ function App() {
 
     if (!socket && signedIn) {
       setSocket(io(URL, {
-        polling: {
-          extraHeaders: {
-            'my-custom-header': 'abc'
-          }
+        
+        allowRequest: (req, callback) => {
+          const noOriginHeader = req.headers.origin === undefined;
+          callback(null, noOriginHeader);
         }
 
       }));
