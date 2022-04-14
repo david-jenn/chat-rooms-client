@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import { io } from 'socket.io-client';
 
-const URL = 'https://talk-rooms-server.herokuapp.com';
+const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com';
 
 function App() {
   const messagesEndRef = useRef(null);
