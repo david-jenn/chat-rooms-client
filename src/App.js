@@ -5,7 +5,7 @@ import moment from 'moment';
 
 import { io } from 'socket.io-client';
 
-const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com'; //
+const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com/'; //http://localhost:5000
 
 function App() {
   const messagesEndRef = useRef(null);
@@ -32,10 +32,7 @@ function App() {
     if (!socket && signedIn) {
       setSocket(io(URL, {
         
-        allowRequest: (req, callback) => {
-          const noOriginHeader = req.headers.origin === undefined;
-          callback(null, noOriginHeader);
-        }
+       
 
       }));
     }
