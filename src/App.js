@@ -32,7 +32,7 @@ function App() {
     if (!socket && signedIn) {
       setSocket(io(URL, {
         
-       
+        withCredentials: true,
 
       }));
     }
