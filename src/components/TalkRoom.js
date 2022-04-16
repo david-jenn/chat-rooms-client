@@ -121,13 +121,14 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
     
         <div>
           <div className="row">
-            <div className="d-md-block d-none col-md-2">
-              <div className="mb-2">
+            <div className="d-md-block  col-md-2">
+              <div className="mb-2 d-flex justify-content-end">
                 <button className="btn btn-danger" onClick={(evt) => onSignOut(evt)}>
                   Sign Out
                 </button>
               </div>
               <div>Users...</div>
+              {userList.length === 0 && <div className="fst-italic">No users found</div>}
               {userList.length > 0 && (
                 <div>
                   {_.map(userList, (user) => (
@@ -171,7 +172,7 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
                   <button className="btn btn-primary me-3" onClick={(evt) => onSendMessage(evt)}>
                     Send
                   </button>
-                  <div>{typingMessage}</div>
+                  <div className="fst-italic">{typingMessage}</div>
                 </div>
               </form>
             </div>

@@ -25,7 +25,7 @@ function SignIn({ changePage, getUsername, getRoom }) {
 
   return (
     <div>
-      <div>from custom component</div>
+    
       <form className="row">
         <div className="mb-2 col-md-6">
           <label htmlFor="message" className="form-label">
