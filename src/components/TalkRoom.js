@@ -4,6 +4,7 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import { io } from 'socket.io-client';
+import axios from 'axios';
 
 const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com/'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
@@ -16,21 +17,18 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
   const [message, setMessage] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false)
   const [typingMessage, setTypingMessage] = useState('');
-  const [messageListItems, setMessageListItems] = useState([]);
+  const [messageList, setMessageList] = useState([]);
 
   const [roomData, setRoomData] = useState(null);
   const [userList, setUserList] = useState([]);
 
   const currentTypers = [];
-  
-
-  
   const [signedIn, setSignedIn] = useState(false);
   
 
   useEffect(() => {
 
-  
+    fetchRoomMessages();
     if(!socket) {
      setSocket(io(URL, {
           withCredentials: true,
@@ -66,6 +64,23 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
     }
   }, [socket]);
 
+  function fetchRoomMessages() {
+    console.log(process.env.REACT_APP_API_URL);
+
+    axios(`${process.env.REACT_APP_API_URL}/api/comment/${ccRoom}/list` , {
+      method:'get',
+    })
+    .then((res) => {
+      if(_.isArray(res.data)) {
+        setMessageList(res.data);
+        scrollToBottom();
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+  }
+
   function onSendMessage(evt) {
     evt.preventDefault();
     // setMessageListItems([...messageListItems, message]);
@@ -77,9 +92,9 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
   }
 
   function outputMessage(msgObj) {
-    messageListItems.push(msgObj);
+    messageList.push(msgObj);
    // console.log(socket);
-    setMessageListItems([...messageListItems]);
+    setMessageList([...messageList]);
   }
 
 
@@ -89,7 +104,7 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
     setSignedIn(false);
     socket.disconnect();
     setUserList([]);
-    setMessageListItems([]);
+    setMessageList([]);
     changePage('SignIn')
     
   }
@@ -139,7 +154,7 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
             </div>
             <div className="col-md-10">
               <div className="scroll-item mb-3 border border-dark p-3">
-                {_.map(messageListItems, (messageListItem) => (
+                {_.map(messageList, (messageListItem) => (
                   <div>
                     <div className="item mb-2">
                       <div className="item-header d-flex justify-content-between">
