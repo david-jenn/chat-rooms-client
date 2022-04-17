@@ -121,6 +121,7 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
   function setInputFocused(evt) {
     setIsInputFocused(evt);
     socket.emit('typing', ccUsername, evt, ccRoom);
+    console.log('hmmm')
   }
 
   function modifyTypingMessage(message) {
