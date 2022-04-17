@@ -6,12 +6,13 @@ import moment from 'moment';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com/'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
+const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
 
-function TalkRoom({changePage, ccUsername, ccRoom}) {
+function TalkRoom({changePage, auth, ccRoom}) {
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
+  const ccUsername = auth.payload.displayName;
 
   const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
@@ -34,7 +35,7 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
           withCredentials: true,
       }));
     }
-    const username = ccUsername;
+    const username = "bob";
     const room = ccRoom;
 
     if (socket) {
@@ -92,9 +93,14 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
   }
 
   function outputMessage(msgObj) {
-    messageList.push(msgObj);
+
+    const messageListCopy = [...messageList];
+    messageListCopy.push(msgObj);
+    console.log(messageList);
+    console.log(messageListCopy);
+    
    // console.log(socket);
-    setMessageList([...messageList]);
+    setMessageList([...messageListCopy]);
   }
 
 
@@ -121,7 +127,6 @@ function TalkRoom({changePage, ccUsername, ccRoom}) {
   function setInputFocused(evt) {
     setIsInputFocused(evt);
     socket.emit('typing', ccUsername, evt, ccRoom);
-    console.log('hmmm')
   }
 
   function modifyTypingMessage(message) {

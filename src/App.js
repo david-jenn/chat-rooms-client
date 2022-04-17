@@ -8,6 +8,8 @@ import Navbar from './components/Navbar';
 import SignIn from './components/SignIn';
 import TalkRoom from './components/TalkRoom';
 import Footer from './components/Footer';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
 
 import { io } from 'socket.io-client';
@@ -15,16 +17,30 @@ import { io } from 'socket.io-client';
 
 function App() {
 
+  const [auth, setAuth] = useState(null);
   const [page, setPage] = useState('SignIn');
   const [username, setUsername] = useState('');
   const [room, setRoom] = useState('');
   let roomName;
   let usernameHolder;
 
+  function onLogin(auth) {
+    setAuth(auth);
+    setPage('Dashboard');
+  }
+
+  function onLogout(auth) {
+    setAuth(null);
+    setPage('SignIn');
+    if (localStorage) {
+      localStorage.removeItem('authToken');
+    }
+  }
+
   function changePage(pageName) {
     setPage(pageName);
   }
-
+  
   function getRoom(room) {
     setRoom(room);
     roomName = room;
@@ -35,15 +51,18 @@ function App() {
     usernameHolder = username;
   }
 
+  
+
   //const navigate = useNavigate();
  
   return (
     <div className="d-flex flex-column min-vh-100">
 
-      <Navbar />
+      <Navbar auth={auth} onLogout={onLogout} />
       <main className="container flex-grow-1 ">
-   {page === 'SignIn' &&   <SignIn changePage={changePage} getUsername={getUsername} getRoom={getRoom} /> }
-    {page === "TalkRoom" && username && room &&  <TalkRoom changePage={changePage} ccUsername={username} ccRoom={room} changePage={changePage}/> }
+   {page === 'SignIn' &&   <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom}/> }
+   {page === 'Dashboard' && <Dashboard auth={auth} getRoom={getRoom} changePage={changePage} />}
+    {page === "TalkRoom" && auth && room &&  <TalkRoom changePage={changePage} auth={auth} ccRoom={room}/> }
       </main>
       <Footer />
 
