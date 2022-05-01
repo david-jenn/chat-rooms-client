@@ -13,6 +13,7 @@ function TalkRoom({changePage, auth, ccRoom}) {
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
   const ccUsername = auth.payload.displayName;
+  let messages = []
 
   const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
@@ -25,21 +26,24 @@ function TalkRoom({changePage, auth, ccRoom}) {
 
   const currentTypers = [];
   const [signedIn, setSignedIn] = useState(false);
+  let messagesLoaded = false;
   
 
   useEffect(() => {
-
+    
     fetchRoomMessages();
     if(!socket) {
      setSocket(io(URL, {
           withCredentials: true,
       }));
     }
-    const username = "bob";
+
+    const username = auth.payload.displayName;
     const room = ccRoom;
 
-    if (socket) {
-      socket.emit('joinRoom', { username, room });
+    if (!socket) {
+     
+
     }
     if(socket?.connected) {
       console.log('connected!');
@@ -48,7 +52,10 @@ function TalkRoom({changePage, auth, ccRoom}) {
     }
     if (socket) {
      
+      socket.emit('joinRoom', { username, room });
+
       socket.on('message', (message) => {
+        console.log(message);
         outputMessage(message);
         scrollToBottom();
         });
@@ -57,24 +64,33 @@ function TalkRoom({changePage, auth, ccRoom}) {
         setRoomData(room);
       });
       socket.on('typingOutput', (message) => {
-       
-        console.log(message);
-        modifyTypingMessage(message);
         setTypingMessage(message);
       })
+      
     }
+    
   }, [socket]);
 
   function fetchRoomMessages() {
-    console.log(process.env.REACT_APP_API_URL);
+    //console.log(process.env.REACT_APP_API_URL);
 
     axios(`${process.env.REACT_APP_API_URL}/api/comment/${ccRoom}/list` , {
       method:'get',
     })
     .then((res) => {
       if(_.isArray(res.data)) {
-        setMessageList(res.data);
+        messages = res.data;
+        messagesLoaded = true;
+        const welcomeMessage = {
+          date: new Date(),
+          msg: `Welcome to TalkRooms, room: ${ccRoom}`,
+          username: "TalkRooms"
+        };
+        messages.push(welcomeMessage);
+        console.log(messages);
+        setMessageList(messages);
         scrollToBottom();
+        
       }
     })
     .catch((err) => {
@@ -93,25 +109,20 @@ function TalkRoom({changePage, auth, ccRoom}) {
   }
 
   function outputMessage(msgObj) {
-
-    const messageListCopy = [...messageList];
-    messageListCopy.push(msgObj);
-    console.log(messageList);
-    console.log(messageListCopy);
-    
-   // console.log(socket);
-    setMessageList([...messageListCopy]);
+    //console.log(messages);
+    messages.push(msgObj)
+    setMessageList(messages);
   }
 
 
   function onSignOut(evt) {
     evt.preventDefault();
-    console.log('fired!');
+    //console.log('fired!');
     setSignedIn(false);
     socket.disconnect();
     setUserList([]);
     setMessageList([]);
-    changePage('SignIn')
+    changePage('Dashboard')
     
   }
 
@@ -121,7 +132,7 @@ function TalkRoom({changePage, auth, ccRoom}) {
   }
 
   function scrollToBottom() {
-    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current.scrollIntoView();
   }
 
   function setInputFocused(evt) {
@@ -129,11 +140,7 @@ function TalkRoom({changePage, auth, ccRoom}) {
     socket.emit('typing', ccUsername, evt, ccRoom);
   }
 
-  function modifyTypingMessage(message) {
-      
-
-  }
-
+  
 
   return (
     
@@ -145,7 +152,7 @@ function TalkRoom({changePage, auth, ccRoom}) {
             <div className="d-md-block  col-md-2">
               <div className="mb-2 d-flex justify-content-end">
                 <button className="btn btn-danger" onClick={(evt) => onSignOut(evt)}>
-                  Sign Out
+                  Leave Room
                 </button>
               </div>
               <div>Users...</div>
@@ -172,7 +179,7 @@ function TalkRoom({changePage, auth, ccRoom}) {
                   </div>
                 ))}
 
-                <div ref={messagesEndRef}></div>
+                <div className="messages-end" ref={messagesEndRef}></div>
               </div>
               <form className="">
                 <div className="mb-2">

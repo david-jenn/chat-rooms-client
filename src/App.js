@@ -10,13 +10,11 @@ import TalkRoom from './components/TalkRoom';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-
+import Register from './components/Register';
 
 import { io } from 'socket.io-client';
 
-
 function App() {
-
   const [auth, setAuth] = useState(null);
   const [page, setPage] = useState('SignIn');
   const [username, setUsername] = useState('');
@@ -40,7 +38,7 @@ function App() {
   function changePage(pageName) {
     setPage(pageName);
   }
-  
+
   function getRoom(room) {
     setRoom(room);
     roomName = room;
@@ -51,21 +49,19 @@ function App() {
     usernameHolder = username;
   }
 
-  
-
   //const navigate = useNavigate();
- 
+
   return (
     <div className="d-flex flex-column min-vh-100">
-
-      <Navbar auth={auth} onLogout={onLogout} />
+      <Navbar auth={auth} onLogout={onLogout} changePage={changePage} />
       <main className="container flex-grow-1 ">
-   {page === 'SignIn' &&   <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom}/> }
-   {page === 'Dashboard' && <Dashboard auth={auth} getRoom={getRoom} changePage={changePage} />}
-    {page === "TalkRoom" && auth && room &&  <TalkRoom changePage={changePage} auth={auth} ccRoom={room}/> }
+        {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom} />}
+        {page === 'Register' && <Register onLogin={onLogin}/>}
+        {page === 'Dashboard' && <Dashboard auth={auth} getRoom={getRoom} changePage={changePage} />}
+        {page === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
+
       </main>
       <Footer />
-
     </div>
   );
 }
