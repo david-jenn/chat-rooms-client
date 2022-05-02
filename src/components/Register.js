@@ -43,6 +43,7 @@ function Register({onLogin}) {
   function onClickRegister(evt) {
     evt.preventDefault();
     setPending(true);
+    setError(null);
     if (emailError || emailConfirmError || passwordError || passwordConfirmError || displayNameError || firstNameError || lastNameError || fullNameError) {
       setError("Please fix the issues above")
       return;
@@ -204,6 +205,7 @@ function Register({onLogin}) {
               </div>
             </div>
           )}
+          <div className="text-danger">{error}</div>
         </div>
       </form>
     </div>

@@ -27,7 +27,7 @@ function Dashboard({getRoom, changePage}) {
       </div>
       <div className="mb-2">
           <button className="btn btn-primary" onClick={(evt) => onJoinRoom(evt, room)}>
-            Join Room
+            Join Custom Room
           </button>
           <div className="text-danger">{errorMessage}</div>
         </div>
