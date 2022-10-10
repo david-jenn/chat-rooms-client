@@ -6,7 +6,7 @@ import moment from 'moment';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com/'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
+const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
 function TalkRoom({ changePage, auth, ccRoom }) {
   const messagesEndRef = useRef(null);
@@ -18,6 +18,7 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   const [message, setMessage] = useState('');
   const [typingMessage, setTypingMessage] = useState('');
   const [messageList, setMessageList] = useState([]);
+  
 
   const [roomData, setRoomData] = useState(null);
   const [userList, setUserList] = useState([]);
@@ -35,9 +36,12 @@ function TalkRoom({ changePage, auth, ccRoom }) {
 
 
   useEffect(() => {
+    console.log(socket);
     if (!messagesLoaded) {
       fetchRoomMessages();
     }
+
+    
 
     if (!socket) {
       setSocket(
@@ -55,6 +59,7 @@ function TalkRoom({ changePage, auth, ccRoom }) {
       console.log('connected!');
     } else {
       console.log('disconnected!');
+
     }
     if (socket) {
       if(!roomJoined) {
@@ -74,7 +79,14 @@ function TalkRoom({ changePage, auth, ccRoom }) {
       socket.on('typingOutput', (message) => {
         setTypingMessage(message);
       });
+      socket.on('disconnect', () => {
+        console.log('hello');
+        changePage('Dashboard');
+        
+      })
+      console.log(socket);
     }
+    
   }, [socket?.connected]);
 
   
@@ -125,10 +137,16 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   }
 
   function onSignOut(evt) {
-    evt.preventDefault();
+    if(evt) {
+      evt.preventDefault();
+    }
+    
     //console.log('fired!');
     setSignedIn(false);
-    socket.disconnect();
+    if(socket) {
+      socket.disconnect();
+    }
+    
     setUserList([]);
     setMessageList([]);
     changePage('Dashboard');
