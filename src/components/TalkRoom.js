@@ -6,7 +6,7 @@ import moment from 'moment';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com/'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
+const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
 function TalkRoom({ changePage, auth, ccRoom }) {
   const messagesEndRef = useRef(null);

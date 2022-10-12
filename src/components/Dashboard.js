@@ -1,6 +1,8 @@
 import onInputChange from '../utils/onInputChange';
 import React, { useState, useEffect, useRef } from 'react';
 
+import CommonRoom from './CommonRoom';
+
 function Dashboard({getRoom, changePage}) {
   const [room, setRoom] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -19,6 +21,22 @@ function Dashboard({getRoom, changePage}) {
   return (
     <div>
       <h1>Dashboard</h1>
+      <div>
+        <h2>Common Rooms</h2>
+        <div className="common-room-wrapper row">
+          <CommonRoom onJoinRoom={onJoinRoom} name="Coding" description="A common room to discuss coding languages and project ideas"/>
+          <CommonRoom onJoinRoom={onJoinRoom} name="Gaming" description="A common room to discuss game strategies and upcoming games"/>
+          <CommonRoom onJoinRoom={onJoinRoom} name="Sports" description="A common room to discuss sports related topics"/>
+          <CommonRoom onJoinRoom={onJoinRoom} name="Casual" description="A casual common room to discuss a variety of topics"/>
+        </div>
+      </div>
+
+      <div>
+        <h2>Create Private Room</h2>
+        <div>
+        
+        </div>
+      </div>
       <div className="mb-2 col-md-6">
         <label htmlFor="message" className="form-label">
           Room
