@@ -9,12 +9,9 @@ function Register({onLogin}) {
   const [emailConfirm, setEmailConfirm] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [fullName, setFullName] = useState('');
+
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [pending, setPending] = useState(false);
 
   const emailError = !email ? 'Email is required' : !email.includes('@') ? 'Email must include @ sign' : '';
@@ -34,23 +31,21 @@ function Register({onLogin}) {
     : '';
 
   const displayNameError = !displayName ? 'Must enter a display name' : '';
-  const firstNameError = !firstName ? 'Given name required' : '';
-  const lastNameError = !lastName ? 'Family name required' : '';
-  const fullNameError = !fullName ? 'Full name required' : '';
 
   const shouldValidate = false;
 
   function onClickRegister(evt) {
     evt.preventDefault();
-    setPending(true);
-    setError(null);
-    if (emailError || emailConfirmError || passwordError || passwordConfirmError || displayNameError || firstNameError || lastNameError || fullNameError) {
+   
+    if (emailError || emailConfirmError || passwordError || passwordConfirmError || displayNameError) {
       setError("Please fix the issues above")
       return;
     } 
+    setPending(true);
+    setError(null);
 
     axios(`${process.env.REACT_APP_API_URL}/api/user/register`, {method: 'post', data: {
-      email, password, displayName, firstName, lastName, fullName
+      email, password, displayName
     }})
       .then((res) => {
         const authPayload = jwtDecode(res.data.token);
@@ -157,42 +152,7 @@ function Register({onLogin}) {
             shouldValidate={shouldValidate || password}
           />
         </div>
-        <div className="col-md-6">
-          <InputField
-            label="First Name"
-            id="register-first-name"
-            type="text"
-            autoComplete=""
-            placeholder=""
-            value={firstName}
-            onChange={(evt) => onInputChange(evt, setFirstName)}
-            error={firstNameError}
-          />
-        </div>
-        <div className="col-md-6">
-          <InputField
-            label="Last Name"
-            id="register-last-name"
-            type="text"
-            autoComplete=""
-            placeholder=""
-            value={lastName}
-            onChange={(evt) => onInputChange(evt, setLastName)}
-            error={lastNameError}
-          />
-        </div>
-        <div className="col-md-6">
-          <InputField
-            label="Full Name"
-            id="register-full-name"
-            type="text"
-            autoComplete=""
-            placeholder=""
-            value={fullName}
-            onChange={(evt) => onInputChange(evt, setFullName)}
-            error={fullNameError}
-          />
-        </div>
+        
 
         <div className="mb-3 d-flex flex-direction-column justify-content-between">
           <button type="submit" className="btn btn-primary" onClick={(evt) => onClickRegister(evt)}>
