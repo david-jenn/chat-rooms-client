@@ -1,6 +1,6 @@
 function CommonRoom({ onJoinRoom, name, description }) {
   return (
-    <div className="p-3 col-md-6 common-room" onClick={(evt) => onJoinRoom(evt, name)}>
+    <div className="p-1 col-md-6 common-room" onClick={(evt) => onJoinRoom(evt, name)}>
       <div className="card">
         <div className="card-body">
           <div className="card-title fs-4">{name}</div>

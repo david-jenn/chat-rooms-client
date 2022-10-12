@@ -94,7 +94,7 @@ function TalkRoom({ changePage, auth, ccRoom }) {
 
 
   function fetchRoomMessages() {
-    //console.log(process.env.REACT_APP_API_URL);
+  
 
     axios(`${process.env.REACT_APP_API_URL}/api/comment/${ccRoom}/list`, {
       method: 'get',

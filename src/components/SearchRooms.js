@@ -1,0 +1,75 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import _ from 'lodash';
+
+function SearchRooms({onJoinRoom}) {
+  const [roomSearch, setRoomSearch] = useState('');
+  const [error, setError] = useState('');
+  const [roomSearchResults, setRoomSearchResults] = useState([]);
+
+  function onInputChange(evt, setValue) {
+    const newValue = evt.currentTarget.value;
+    setValue(newValue);
+    fetchRooms(newValue);
+  }
+
+  function fetchRooms(roomSearch) {
+    axios(`${process.env.REACT_APP_API_URL}/api/room/list`, {
+      method: 'get',
+      params: { keyword: roomSearch },
+    })
+      .then((res) => {
+        console.log(res);
+        setRoomSearchResults(res.data);
+      })
+      .catch((err) => {
+        const resError = err?.response?.data?.error;
+        if (resError) {
+          if (typeof resError === 'string') {
+            setError(resError);
+          } else if (resError.details) {
+            setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
+
+            for (const detail of resError.details) {
+            }
+          } else {
+            setError(JSON.stringify(resError));
+          }
+        } else {
+          setError(err.message);
+        }
+      });
+  }
+  return (
+    <div>
+      <h2>Search Public Rooms</h2>
+      <div className="">
+        <div>
+          <label htmlFor="room-search-input" className="form-label">
+            Room Name
+          </label>
+          <input
+            id="room-search-input"
+            className="form-control"
+            onChange={(evt) => onInputChange(evt, setRoomSearch)}
+            onFocus={(evt) => fetchRooms(roomSearch)}
+          ></input>
+        </div>
+        {roomSearchResults && roomSearchResults.length > 0 && (
+          <div>
+            {
+              _.map(roomSearchResults, (room) => (
+                <div className="common-room">
+                <div className="card p-1" onClick={(evt) => onJoinRoom(evt, room.name)}>{room.name}</div>
+                </div>
+              ))
+            }
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default SearchRooms;

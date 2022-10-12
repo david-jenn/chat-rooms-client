@@ -2,16 +2,22 @@ import onInputChange from '../utils/onInputChange';
 import React, { useState, useEffect, useRef } from 'react';
 
 import CommonRoom from './CommonRoom';
+import CreateRoom from './CreateRoom';
+import SearchRooms from './SearchRooms';
 
-function Dashboard({getRoom, changePage}) {
+function Dashboard({ getRoom, changePage }) {
   const [room, setRoom] = useState('');
+  const [roomPassword, setRoomPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [roomStatus, setRoomStatus] = useState('public');
 
-  function onJoinRoom(evt, room) {
+  function onJoinRoom(evt, room, onInputChange) {
     evt.preventDefault();
-    if(!room) {
-      setErrorMessage('room cannot be left blank')
-      return
+
+
+    if (!room) {
+      setErrorMessage('room cannot be left blank');
+      return;
     }
 
     getRoom(room);
@@ -21,34 +27,42 @@ function Dashboard({getRoom, changePage}) {
   return (
     <div>
       <h1>Dashboard</h1>
-      <div>
-        <h2>Common Rooms</h2>
-        <div className="common-room-wrapper row">
-          <CommonRoom onJoinRoom={onJoinRoom} name="Coding" description="A common room to discuss coding languages and project ideas"/>
-          <CommonRoom onJoinRoom={onJoinRoom} name="Gaming" description="A common room to discuss game strategies and upcoming games"/>
-          <CommonRoom onJoinRoom={onJoinRoom} name="Sports" description="A common room to discuss sports related topics"/>
-          <CommonRoom onJoinRoom={onJoinRoom} name="Casual" description="A casual common room to discuss a variety of topics"/>
-        </div>
-      </div>
-
-      <div>
-        <h2>Create Private Room</h2>
+      <div className="bg-light p-3">
         <div>
-        
+          <h2>Common Rooms</h2>
+          <div className="common-room-wrapper row">
+            <CommonRoom
+              onJoinRoom={onJoinRoom}
+              name="Coding"
+              description="A common room to discuss coding languages and project ideas"
+            />
+            <CommonRoom
+              onJoinRoom={onJoinRoom}
+              name="Gaming"
+              description="A common room to discuss game strategies and upcoming games"
+            />
+            <CommonRoom
+              onJoinRoom={onJoinRoom}
+              name="Sports"
+              description="A common room to discuss sports related topics"
+            />
+            <CommonRoom
+              onJoinRoom={onJoinRoom}
+              name="Casual"
+              description="A casual common room to discuss a variety of topics"
+            />
+          </div>
+        </div>
+        <div className="row">
+        <div className="search-room-container col-md-6 p-3">
+            <SearchRooms onJoinRoom={onJoinRoom} />
+          </div>
+          <div className="create-room-wrapper col-md-6 p-3">
+            <CreateRoom onJoinRoom={onJoinRoom} />
+          </div>
+          
         </div>
       </div>
-      <div className="mb-2 col-md-6">
-        <label htmlFor="message" className="form-label">
-          Room
-        </label>
-        <input id="message" className="form-control" onChange={(evt) => onInputChange(evt, setRoom)}></input>
-      </div>
-      <div className="mb-2">
-          <button className="btn btn-primary" onClick={(evt) => onJoinRoom(evt, room)}>
-            Join Custom Room
-          </button>
-          <div className="text-danger">{errorMessage}</div>
-        </div>
     </div>
   );
 }

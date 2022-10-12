@@ -49,6 +49,11 @@ function App() {
     usernameHolder = username;
   }
 
+  function onInputChange(evt, setValue) {
+    const newValue = evt.currentTarget.value;
+    setValue(newValue);
+  }
+
   //const navigate = useNavigate();
 
   return (
@@ -57,7 +62,7 @@ function App() {
       <main className="container flex-grow-1 ">
         {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom} />}
         {page === 'Register' && <Register onLogin={onLogin}/>}
-        {page === 'Dashboard' && <Dashboard auth={auth} getRoom={getRoom} changePage={changePage} />}
+        {page === 'Dashboard' && <Dashboard auth={auth} getRoom={getRoom} changePage={changePage} onInputChange={onInputChange} />}
         {page === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
 
       </main>
