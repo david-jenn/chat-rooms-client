@@ -4,6 +4,7 @@ import _ from "lodash";
 
 import Friends from "./Friends";
 import TalkRoom from "./TalkRoom";
+import FriendList from "./FriendList";
 
 function Dashboard({auth, changePage}) {
 
@@ -15,7 +16,7 @@ function Dashboard({auth, changePage}) {
   useEffect(() => {
     console.log(auth);
     getUser(auth.payload._id);
-  }, [auth])
+  }, [auth, ])
 
   function getUser(id) {
     console.log(id)
