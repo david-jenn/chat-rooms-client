@@ -6,7 +6,7 @@ import moment from 'moment';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const URL = 'https://talk-rooms-server-david-jenn.herokuapp.com/'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
+const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
 function TalkRoom({ changePage, auth, ccRoom }) {
   const messagesEndRef = useRef(null);
@@ -18,7 +18,6 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   const [message, setMessage] = useState('');
   const [typingMessage, setTypingMessage] = useState('');
   const [messageList, setMessageList] = useState([]);
-  
 
   const [roomData, setRoomData] = useState(null);
   const [userList, setUserList] = useState([]);
@@ -34,14 +33,15 @@ function TalkRoom({ changePage, auth, ccRoom }) {
     //Might be expensive?
   });
 
-
   useEffect(() => {
     console.log(socket);
+    if (!ccRoom) {
+      return;
+    }
+    
     if (!messagesLoaded) {
       fetchRoomMessages();
     }
-
-    
 
     if (!socket) {
       setSocket(
@@ -53,20 +53,18 @@ function TalkRoom({ changePage, auth, ccRoom }) {
 
     const username = auth.payload.displayName;
     const room = ccRoom;
-
     
+
     if (socket?.connected) {
       console.log('connected!');
     } else {
       console.log('disconnected!');
-
     }
     if (socket) {
-      if(!roomJoined) {
+      if (!roomJoined) {
         socket.emit('joinRoom', { username, room });
         setRoomJoined(true);
       }
-      
 
       socket.on('message', (message) => {
         console.log(message);
@@ -82,20 +80,12 @@ function TalkRoom({ changePage, auth, ccRoom }) {
       socket.on('disconnect', () => {
         console.log('hello');
         changePage('Dashboard');
-        
-      })
+      });
       console.log(socket);
     }
-    
-  }, [socket?.connected]);
-
-  
-
-
+  }, [socket?.connected, ccRoom]);
 
   function fetchRoomMessages() {
-  
-
     axios(`${process.env.REACT_APP_API_URL}/api/comment/${ccRoom}/list`, {
       method: 'get',
     })
@@ -111,7 +101,6 @@ function TalkRoom({ changePage, auth, ccRoom }) {
           messages.push(welcomeMessage);
           console.log(messages);
           setMessageList(messages);
-          
         }
       })
       .catch((err) => {
@@ -137,16 +126,16 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   }
 
   function onSignOut(evt) {
-    if(evt) {
+    if (evt) {
       evt.preventDefault();
     }
-    
+
     //console.log('fired!');
     setSignedIn(false);
-    if(socket) {
+    if (socket) {
       socket.disconnect();
     }
-    
+
     setUserList([]);
     setMessageList([]);
     changePage('Dashboard');
@@ -158,7 +147,10 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   }
 
   function scrollToBottom() {
-    messagesEndRef.current.scrollIntoView();
+    if(ccRoom) {
+      messagesEndRef.current.scrollIntoView();
+    }
+    
   }
 
   function setInputFocused(evt) {
@@ -169,7 +161,7 @@ function TalkRoom({ changePage, auth, ccRoom }) {
     <div className="container main-wrapper">
       <div>
         <div className="row">
-          <div className="d-md-block  col-md-2">
+          {/* <div className="d-md-block  col-md-2">
             <div>Users...</div>
             {userList.length === 0 && <div className="fst-italic">No users found</div>}
             {userList.length > 0 && (
@@ -179,32 +171,34 @@ function TalkRoom({ changePage, auth, ccRoom }) {
                 ))}
               </div>
             )}
-          </div>
-          <div className="col-md-10">
+          </div> */}
+          {ccRoom && (
+          <div className="col-md-12">
             <div className="mb-2 d-flex justify-content-between">
               <h1 className="fs-3">Room {ccRoom}</h1>
               <button className="btn btn-danger" onClick={(evt) => onSignOut(evt)}>
                 Leave
               </button>
             </div>
-
-            <div className="scroll-item mb-3 border border-dark p-3">
-              {_.map(messageList, (messageListItem) => (
-                <div>
-                  <div className="item mb-2">
-                    <div className="item-header d-flex justify-content-between">
-                      <div>{messageListItem.username}</div>
-                      {messageListItem.timestamp && <div>{moment(messageListItem.timestamp).fromNow()}</div>}
-                      {messageListItem.date && <div>{moment(messageListItem.date).fromNow()}</div>}
+            
+              <div className="scroll-item mb-3 border border-dark p-3">
+                {_.map(messageList, (messageListItem) => (
+                  <div>
+                    <div className="item mb-2">
+                      <div className="item-header d-flex justify-content-between">
+                        <div>{messageListItem.username}</div>
+                        {messageListItem.timestamp && <div>{moment(messageListItem.timestamp).fromNow()}</div>}
+                        {messageListItem.date && <div>{moment(messageListItem.date).fromNow()}</div>}
+                      </div>
+                      <div className="item-body">{messageListItem.msg}</div>
                     </div>
-                    <div className="item-body">{messageListItem.msg}</div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              <div className="messages-end"></div>
-              <div ref={messagesEndRef}></div>
-            </div>
+                <div className="messages-end"></div>
+                <div ref={messagesEndRef}></div>
+              </div>
+            
             <form className="">
               <div className="mb-2">
                 <label htmlFor="message" className="form-label visually-hidden">
@@ -227,7 +221,7 @@ function TalkRoom({ changePage, auth, ccRoom }) {
                 <div className="fst-italic">{typingMessage}</div>
               </div>
             </form>
-          </div>
+          </div>)}
         </div>
       </div>
     </div>

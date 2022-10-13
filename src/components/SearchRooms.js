@@ -54,6 +54,7 @@ function SearchRooms({onJoinRoom}) {
             className="form-control"
             onChange={(evt) => onInputChange(evt, setRoomSearch)}
             onFocus={(evt) => fetchRooms(roomSearch)}
+            onBlur={(evt) => setRoomSearchResults([])}
           ></input>
         </div>
         {roomSearchResults && roomSearchResults.length > 0 && (

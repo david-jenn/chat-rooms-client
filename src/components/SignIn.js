@@ -20,7 +20,7 @@ function SignIn({ changePage, getUsername, getRoom }) {
     getUsername(username);
     getRoom(room);
 
-    changePage('TalkRoom');
+    changePage('FindRooms');
   }
 
   return (

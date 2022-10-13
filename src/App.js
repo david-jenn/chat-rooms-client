@@ -9,8 +9,9 @@ import SignIn from './components/SignIn';
 import TalkRoom from './components/TalkRoom';
 import Footer from './components/Footer';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
+import FindRooms from './components/FindRooms';
 import Register from './components/Register';
+import Dashboard from './components/Dashboard';
 
 import { io } from 'socket.io-client';
 
@@ -59,11 +60,12 @@ function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar auth={auth} onLogout={onLogout} changePage={changePage} />
-      <main className="container flex-grow-1 ">
+      <main className="container-fluid flex-grow-1 ">
         {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom} />}
         {page === 'Register' && <Register onLogin={onLogin}/>}
-        {page === 'Dashboard' && <Dashboard auth={auth} getRoom={getRoom} changePage={changePage} onInputChange={onInputChange} />}
+        {page === 'FindRooms' && <FindRooms auth={auth} getRoom={getRoom} changePage={changePage} onInputChange={onInputChange} />}
         {page === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
+        {page === 'Dashboard' && auth && <Dashboard changePage={changePage} auth={auth} />}
 
       </main>
       <Footer />

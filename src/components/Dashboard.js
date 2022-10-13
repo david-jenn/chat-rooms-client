@@ -1,70 +1,69 @@
-import onInputChange from '../utils/onInputChange';
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import _ from "lodash";
 
-import CommonRoom from './CommonRoom';
-import CreateRoom from './CreateRoom';
-import SearchRooms from './SearchRooms';
+import Friends from "./Friends";
+import TalkRoom from "./TalkRoom";
 
-function Dashboard({ getRoom, changePage }) {
-  const [room, setRoom] = useState('');
-  const [roomPassword, setRoomPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [roomStatus, setRoomStatus] = useState('public');
+function Dashboard({auth, changePage}) {
 
-  function onJoinRoom(evt, room, onInputChange) {
-    evt.preventDefault();
+  const [error, setError] = useState('');
+  const [user, setUser] = useState(null);
 
 
-    if (!room) {
-      setErrorMessage('room cannot be left blank');
-      return;
-    }
 
-    getRoom(room);
-    changePage('TalkRoom');
+  useEffect(() => {
+    console.log(auth);
+    getUser(auth.payload._id);
+  }, [auth])
+
+  function getUser(id) {
+    console.log(id)
+    axios(`${process.env.REACT_APP_API_URL}/api/user/${id}`, {
+      method: 'get',
+    })
+      .then((res) => {
+        console.log(res);
+        setUser(res.data);
+      })
+      .catch((err) => {
+        const resError = err?.response?.data?.error;
+        if (resError) {
+          if (typeof resError === 'string') {
+            setError(resError);
+          } else if (resError.details) {
+            setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
+
+            for (const detail of resError.details) {
+            }
+          } else {
+            setError(JSON.stringify(resError));
+          }
+        } else {
+          setError(err.message);
+        }
+      });
   }
 
+
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <div className="bg-light p-3">
+    <div className="row">
+      <div className="friend-container col-md-3">
         <div>
-          <h2>Common Rooms</h2>
-          <div className="common-room-wrapper row">
-            <CommonRoom
-              onJoinRoom={onJoinRoom}
-              name="Coding"
-              description="A common room to discuss coding languages and project ideas"
-            />
-            <CommonRoom
-              onJoinRoom={onJoinRoom}
-              name="Gaming"
-              description="A common room to discuss game strategies and upcoming games"
-            />
-            <CommonRoom
-              onJoinRoom={onJoinRoom}
-              name="Sports"
-              description="A common room to discuss sports related topics"
-            />
-            <CommonRoom
-              onJoinRoom={onJoinRoom}
-              name="Casual"
-              description="A casual common room to discuss a variety of topics"
-            />
-          </div>
-        </div>
-        <div className="row">
-        <div className="search-room-container col-md-6 p-3">
-            <SearchRooms onJoinRoom={onJoinRoom} />
-          </div>
-          <div className="create-room-wrapper col-md-6 p-3">
-            <CreateRoom onJoinRoom={onJoinRoom} />
-          </div>
-          
+          <Friends auth={auth} user={user} />
         </div>
       </div>
+      <div className="friend-container col-md-6">
+        <div>
+          <TalkRoom changePage={changePage} auth={auth} />
+        </div>
+      </div>
+      <div className="friend-container col-md-3">
+        <div>Other data</div>
+      </div>
     </div>
-  );
+  
+  )
 }
 
 export default Dashboard;
