@@ -4,6 +4,7 @@ import axios from 'axios';
 import _ from 'lodash';
 
 function SearchRooms({onJoinRoom}) {
+  const searchRoomRef = useRef(null);
   const [roomSearch, setRoomSearch] = useState('');
   const [error, setError] = useState('');
   const [roomSearchResults, setRoomSearchResults] = useState([]);
@@ -13,6 +14,7 @@ function SearchRooms({onJoinRoom}) {
     setValue(newValue);
     fetchRooms(newValue);
   }
+  
 
   function fetchRooms(roomSearch) {
     axios(`${process.env.REACT_APP_API_URL}/api/room/list`, {
@@ -55,6 +57,7 @@ function SearchRooms({onJoinRoom}) {
             onChange={(evt) => onInputChange(evt, setRoomSearch)}
             onFocus={(evt) => fetchRooms(roomSearch)}
             onBlur={(evt) => setRoomSearchResults([])}
+            ref={searchRoomRef}
           ></input>
         </div>
         {roomSearchResults && roomSearchResults.length > 0 && (
@@ -62,7 +65,7 @@ function SearchRooms({onJoinRoom}) {
             {
               _.map(roomSearchResults, (room) => (
                 <div className="common-room">
-                <div className="card p-1" onClick={(evt) => onJoinRoom(evt, room.name)}>{room.name}</div>
+                <div className="card p-1" onMouseDown={(evt) => evt.preventDefault()} onClick={(evt) => onJoinRoom(evt, room.name).then(() => searchRoomRef.current.blur())}>{room.name}</div>
                 </div>
               ))
             }

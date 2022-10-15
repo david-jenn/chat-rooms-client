@@ -74,6 +74,9 @@ function TalkRoom({ changePage, auth, ccRoom }) {
         setUserList(users);
         setRoomData(room);
       });
+      socket.on('test', (message) => {
+        console.log(message);
+      })
       socket.on('typingOutput', (message) => {
         setTypingMessage(message);
       });

@@ -1,13 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
+import { SocketContext } from '../context/socket';
 
 function FriendList({ auth, user, setFriendList }) {
   const [error, setError] = useState('');
   const [friendConnections, setFriendConnections] = useState([]);
+  
+
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     getFriends();
+    socket.on('REQUEST_ACCEPTED', (message) => {
+      console.log(message)
+      getFriends()
+    });
+    return () => {
+      socket.off('REQUEST_ACCEPTED');
+    }
   }, [auth]);
 
   function getFriends() {
@@ -36,11 +47,12 @@ function FriendList({ auth, user, setFriendList }) {
   }
 
   return (
-    <div>
+    <div className="">
+      
       {friendConnections &&
         friendConnections.length > 0 &&
         _.map(friendConnections, (connection) => (
-          <div className="card p-1">
+          <div className="card p-2 mb-1">
             <div>{connection.friend.displayName}</div>
           </div>
         ))}

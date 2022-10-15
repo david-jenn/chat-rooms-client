@@ -1,15 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
+import { SocketContext } from '../context/socket';
 
 import InputField from './InputField';
 
 function FindFriends({ auth, user, friendList }) {
+
+  const friendInputRef = useRef(null);
   const [error, setError] = useState('');
   const [friendSearch, setFriendSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  const socket = useContext(SocketContext);
 
+  useEffect(() => {
+   
+    
+  }, [socket]);
 
   function onInputChange(evt, setValue) {
     const newValue = evt.currentTarget.value;
@@ -17,10 +25,23 @@ function FindFriends({ auth, user, friendList }) {
     fetchUsers(newValue);
   }
 
-  function filterFriends(list) {
-    console.log(list);
+  function filterFriends(userList) {
+    console.log(userList);
     console.log(friendList);
-    
+
+    const friendIds = friendList.map((item) => {
+      return item.friend?.id;
+    });
+
+    console.log(friendIds);
+    const updatedUserList = [];
+    for (const userItem of userList) {
+      if (!friendIds.includes(userItem._id) && userItem._id !== auth.userId) {
+        updatedUserList.push(userItem);
+      }
+    }
+
+    setSearchResults(updatedUserList);
   }
 
   function fetchUsers(query) {
@@ -29,8 +50,8 @@ function FindFriends({ auth, user, friendList }) {
       params: { keyword: query },
     })
       .then((res) => {
-        filterFriends(res.data)
-        setSearchResults(res.data);
+        
+        filterFriends(res.data);
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -52,6 +73,9 @@ function FindFriends({ auth, user, friendList }) {
   }
 
   function sendFriendRequest(friend) {
+    friendInputRef.current.blur();
+    console.log('clicked!')
+    console.log(user);
     const sender = {
       id: user._id,
       displayName: user.displayName,
@@ -65,6 +89,10 @@ function FindFriends({ auth, user, friendList }) {
       },
     })
       .then((res) => {
+        const friendId = friend._id;
+        const userDisplayName = user.displayName;
+        const userId = user._id;
+        socket.emit('FRIEND_REQUEST', {friendId, userDisplayName, userId});
         console.log(res);
       })
       .catch((err) => {
@@ -88,33 +116,43 @@ function FindFriends({ auth, user, friendList }) {
   }
 
   return (
-    <div>
-      <label htmlFor="room-search-input" className="form-label">
+    <div className="mb-3 pb-3 border-2 border-bottom border-dark">
+      <label htmlFor="room-search-input" className="form-label d-none">
         Search for friends
       </label>
       <input
         id="search-display-name"
         type="username"
         className="form-control"
+        placeholder="Search For Friends"
         onChange={(evt) => onInputChange(evt, setFriendSearch)}
         onFocus={(evt) => fetchUsers(friendSearch)}
-        // onBlur={(evt) => setSearchResults([])}
+        onBlur={(evt) => setSearchResults([])}
+        ref={friendInputRef}
       ></input>
       {searchResults && searchResults.length > 0 && (
-        <div>
-          {_.map(searchResults, (result) => (
-            <div key={result._id} className="">
-              <div className= "card p-1">
-                <div className="d-flex justify-content-between">
-                  <div>{result.displayName}</div>
-                  <div className="text-primary common-room" >
-                    <button type="button" className="btn btn-primary btn-sm" onClick={(evt) => sendFriendRequest(result)}>add</button>
-                    
+        <div className="">
+          <div className="">
+            {_.map(searchResults, (result) => (
+              <div key={result._id} className="friend-search-item" >
+                <div className="card p-1">
+                  <div className="d-flex justify-content-between">
+                    <div>{result.displayName}</div>
+                    <div className="text-primary common-room">
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onMouseDown={(evt) => evt.preventDefault()}
+                        onClick={(evt) => sendFriendRequest(result)}
+                      >
+                        add
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>

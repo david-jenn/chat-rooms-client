@@ -60,7 +60,7 @@ function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar auth={auth} onLogout={onLogout} changePage={changePage} />
-      <main className="container-fluid flex-grow-1 ">
+      <main className="container-fluid flex-grow-1">
         {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom} />}
         {page === 'Register' && <Register onLogin={onLogin}/>}
         {page === 'FindRooms' && <FindRooms auth={auth} getRoom={getRoom} changePage={changePage} onInputChange={onInputChange} />}

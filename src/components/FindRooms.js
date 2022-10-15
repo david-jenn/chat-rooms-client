@@ -13,8 +13,6 @@ function FindRooms({ getRoom, changePage }) {
 
   function onJoinRoom(evt, room, onInputChange) {
     evt.preventDefault();
-
-
     if (!room) {
       setErrorMessage('room cannot be left blank');
       return;

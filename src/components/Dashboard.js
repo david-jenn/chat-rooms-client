@@ -1,30 +1,43 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import _ from "lodash";
+import { useState, useEffect, useContext } from 'react';
+import {SocketContext, socket} from '../context/socket'
 
-import Friends from "./Friends";
-import TalkRoom from "./TalkRoom";
-import FriendList from "./FriendList";
+import axios from 'axios';
+import _ from 'lodash';
+import { io } from 'socket.io-client'
 
-function Dashboard({auth, changePage}) {
+import Friends from './Friends';
+import TalkRoom from './TalkRoom';
+import FriendList from './FriendList';
+const URL = 'http://localhost:5000';
 
+function Dashboard({ auth, changePage }) {
+  
   const [error, setError] = useState('');
   const [user, setUser] = useState(null);
 
 
+  //socket
+ useEffect(() => {
+  console.log(socket);
+  if(user) {
+    socket.emit('USER_JOIN', user);
+  }
+  
+ },[socket, user])
+
+ 
 
   useEffect(() => {
     console.log(auth);
     getUser(auth.payload._id);
-  }, [auth, ])
+  }, [auth]);
 
   function getUser(id) {
-    console.log(id)
+    console.log(id);
     axios(`${process.env.REACT_APP_API_URL}/api/user/${id}`, {
       method: 'get',
     })
       .then((res) => {
-        console.log(res);
         setUser(res.data);
       })
       .catch((err) => {
@@ -46,25 +59,23 @@ function Dashboard({auth, changePage}) {
       });
   }
 
-
   return (
-    <div className="row">
+    <SocketContext.Provider value={socket}>
+    <div className="row dashboard">
       <div className="friend-container col-md-3">
-        <div>
+        <div className="friend-wrapper">
           <Friends auth={auth} user={user} />
         </div>
       </div>
       <div className="friend-container col-md-6">
-        <div>
-          <TalkRoom changePage={changePage} auth={auth} />
-        </div>
+        <div>{/* <TalkRoom changePage={changePage} auth={auth} /> */}</div>
       </div>
       <div className="friend-container col-md-3">
         <div>Other data</div>
       </div>
     </div>
-  
-  )
+    </SocketContext.Provider>
+  );
 }
 
 export default Dashboard;

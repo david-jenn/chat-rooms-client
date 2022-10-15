@@ -2,6 +2,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { useState, useEffect } from 'react';
 import onInputChange from '../utils/onInputChange';
+import friends from '../../src/css/friends.css';
 
 import InputField from './InputField';
 import FindFriends from './FindFriends';
@@ -13,16 +14,21 @@ function Friends({ auth, user }) {
   const [friendList, setFriendList] = useState([]);
 
   return (
-    <div>
+    <div className="friend-child">
       <h2>Friends</h2>
-
-      
-      <FindFriends auth={auth} user={user} friendList={friendList} />
-
-      <h3>Friend List</h3>
-      <FriendList auth={auth} user={user} setFriendList={setFriendList} />
-      <h3>Friend Requests</h3>
-      <FriendRequests auth={auth} user={user} />
+      <div className="d-flex flex-column friends-vertical">
+   
+        <div>
+          <FindFriends auth={auth} user={user} friendList={friendList} />
+        </div>
+        <div className="flex-grow-1">
+          <FriendList auth={auth} user={user} setFriendList={setFriendList} />
+        </div>
+        <div>
+          <FriendRequests auth={auth} user={user} />
+        </div>
+     
+      </div>
     </div>
   );
 }
