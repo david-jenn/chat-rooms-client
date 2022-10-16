@@ -1,80 +1,39 @@
 import { useState, useEffect, useContext } from 'react';
-import {SocketContext, socket} from '../context/socket'
+import { SocketContext } from '../context/socket';
 
-import axios from 'axios';
-import _ from 'lodash';
-import { io } from 'socket.io-client'
+
 
 import Friends from './Friends';
 import TalkRoom from './TalkRoom';
-import FriendList from './FriendList';
-const URL = 'http://localhost:5000';
-
-function Dashboard({ auth, changePage }) {
-  
-  const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
 
 
-  //socket
- useEffect(() => {
-  console.log(socket);
-  if(user) {
-    socket.emit('USER_JOIN', user);
+
+function Dashboard({ auth, changePage, changeSubPage, user }) {
+
+  const socket = useContext(SocketContext);
+  const [directChatData, setDirectChatData] = useState(null);
+
+
+  function getDirectChatData(data) {
+    setDirectChatData(data);
   }
   
- },[socket, user])
-
- 
-
-  useEffect(() => {
-    console.log(auth);
-    getUser(auth.payload._id);
-  }, [auth]);
-
-  function getUser(id) {
-    console.log(id);
-    axios(`${process.env.REACT_APP_API_URL}/api/user/${id}`, {
-      method: 'get',
-    })
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        const resError = err?.response?.data?.error;
-        if (resError) {
-          if (typeof resError === 'string') {
-            setError(resError);
-          } else if (resError.details) {
-            setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
-
-            for (const detail of resError.details) {
-            }
-          } else {
-            setError(JSON.stringify(resError));
-          }
-        } else {
-          setError(err.message);
-        }
-      });
-  }
-
   return (
-    <SocketContext.Provider value={socket}>
+    
     <div className="row dashboard">
       <div className="friend-container col-md-3">
         <div className="friend-wrapper">
-          <Friends auth={auth} user={user} />
+          <Friends auth={auth} user={user} getDirectChatData={getDirectChatData} />
         </div>
       </div>
-      <div className="friend-container col-md-6">
-        <div>{/* <TalkRoom changePage={changePage} auth={auth} /> */}</div>
+      <div className="friend-container col-md-9">
+        <div><TalkRoom changePage={changePage} auth={auth} directChatData={directChatData} getDirectChatData={getDirectChatData} /></div>
       </div>
-      <div className="friend-container col-md-3">
+      {/* <div className="friend-container col-md-3">
         <div>Other data</div>
-      </div>
+      </div> */}
     </div>
-    </SocketContext.Provider>
+    
   );
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import { SocketContext } from '../context/socket';
 
 function FriendRequests({ auth, user }) {
@@ -10,41 +10,98 @@ function FriendRequests({ auth, user }) {
 
   const socket = useContext(SocketContext);
 
-  const handleRequestCancelled = useCallback(() => {
-    getFriendRequests();
-    getSentFriendRequests();
-  }, [])
+  let sentRequests = [];
+  let receivedRequests = [];
+
+  const requestCancelSender = useCallback((data) => {
+    const updatedRequests = [];
+    for (const request of sentRequests) {
+      if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
+        updatedRequests.push(request);
+      }
+    }
+    sentRequests = [...updatedRequests];
+    setSentFriendRequests(updatedRequests);
+  });
+
+  const requestCancelReceiver = useCallback((data) => {
+
+    const updatedRequests = [];
+    for (const request of receivedRequests) {
+      if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
+        updatedRequests.push(request);
+      }
+    }
+    sentRequests = [...updatedRequests];
+    setFriendRequests(updatedRequests);
+  });
+
+  const requestAcceptedSender = useCallback((data) => {
+    const updatedRequests = [];
+    for (const request of receivedRequests) {
+      if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
+        updatedRequests.push(request);
+      }
+    }
+    sentRequests = [...updatedRequests];
+    setFriendRequests(updatedRequests);
+  });
+
+  const requestRejectReceiver = useCallback((data) => {
+    
+    const updatedRequests = [];
+    for (const request of sentRequests) {
+      if (request.sender?.id === data.receiver.id && request.friend?.id !== data.sender?._id) {
+        updatedRequests.push(request);
+      }
+    }
+    sentRequests = [...updatedRequests];
+    setSentFriendRequests(updatedRequests);
+    
+  });
+  const requestRejectSender = useCallback((data) => {
+
+    const updatedRequests = [];
+    for (const request of receivedRequests) {
+      if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
+        updatedRequests.push(request);
+      }
+    }
+    sentRequests = [...updatedRequests];
+    setFriendRequests(updatedRequests);
+    
+  });
+
+  
+
+ 
 
   useEffect(() => {
     getFriendRequests();
     getSentFriendRequests();
-    socket.on('REQUEST_ACCEPTED', (message) => {
-      console.log('from requests: ' + message);
-      getFriendRequests();
-      getSentFriendRequests();
-    });
+
+    socket.on('REQUEST_ACCEPTED_SENDER', requestCancelReceiver);
+    socket.on('REQUEST_ACCEPTED_RECEIVER', requestCancelSender);
+    socket.on('REQUEST_REJECTED_RECEIVER', requestRejectReceiver);
+    socket.on('REQUEST_REJECTED_SENDER', requestRejectSender);
 
     socket.on('REQUEST_RECEIVED', (message) => {
-      console.log(message);
       getFriendRequests();
     });
 
     socket.on('REQUEST_SENT', (message) => {
-      console.log('from request_sent  ' + message);
       getSentFriendRequests();
     });
 
-    socket.on('REQUEST_CANCELED_SENDER', handleRequestCancelled)
-  
+    socket.on('REQUEST_CANCELED_SENDER', requestCancelSender);
 
-    socket.on('REQUEST_CANCELED_RECEIVER', (message) => {
-      console.log(message);
-      getSentFriendRequests();
-      getFriendRequests();
-    })
+    socket.on('REQUEST_CANCELED_RECEIVER', requestCancelReceiver);
 
     return () => {
-      socket.off('REQUEST_ACCEPTED');
+      socket.off('REQUEST_ACCEPTED_SENDER');
+      socket.off('REQUEST_ACCEPTED_RECEIVER');
+      socket.off('REQUEST_REJECTED_RECEIVER');
+      socket.off('REQUEST_REJECTED_SENDER');
       socket.off('REQUEST_RECEIVED');
       socket.off('REQUEST_SENT');
       socket.off('REQUEST_CANCELED_SENDER');
@@ -57,15 +114,15 @@ function FriendRequests({ auth, user }) {
       method: 'get',
     })
       .then((res) => {
-        console.log(res);
+       
         setFriendRequests(res.data);
+        receivedRequests = [...res.data];
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
         if (resError) {
           if (typeof resError === 'string') {
             setError(resError);
-            console.log(resError);
           } else if (resError.details) {
             setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
           } else {
@@ -82,8 +139,9 @@ function FriendRequests({ auth, user }) {
       method: 'get',
     })
       .then((res) => {
-        console.log(res);
+      
         setSentFriendRequests(res.data);
+        sentRequests = [...res.data];
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -115,11 +173,49 @@ function FriendRequests({ auth, user }) {
       },
     })
       .then((res) => {
-        const friendId = friend.id;
-        const userDisplayName = user.displayName;
-        const userId = user._id;
-        console.log(res);
-        socket.emit('ACCEPT_REQUEST', { friendId, userDisplayName, userId });
+        const data = {
+          sender: user,
+          receiver: friend,
+        };
+        socket.emit('ACCEPT_REQUEST', data);
+      })
+      .catch((err) => {
+        const resError = err?.response?.data?.error;
+        if (resError) {
+          if (typeof resError === 'string') {
+            setError(resError);
+            console.log(resError);
+          } else if (resError.details) {
+            setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
+          } else {
+            setError(JSON.stringify(resError));
+          }
+        } else {
+          setError(err.message);
+        }
+      });
+  }
+
+  function rejectRequest(friend) {
+    
+    const userData = {
+      id: user._id,
+      displayName: user.displayName,
+    };
+    axios(`${process.env.REACT_APP_API_URL}/api/friend/cancel-request`, {
+      method: 'put',
+      data: {
+        connectionOne: userData,
+        connectionTwo: friend,
+      },
+    })
+      .then((res) => {
+        const data = {
+          sender: user,
+          receiver: friend,
+        };
+
+        socket.emit('REJECT_REQUEST', data);
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -139,6 +235,7 @@ function FriendRequests({ auth, user }) {
   }
 
   function cancelSentRequest(friend) {
+
     const userData = {
       id: user._id,
       displayName: user.displayName,
@@ -151,11 +248,12 @@ function FriendRequests({ auth, user }) {
       },
     })
       .then((res) => {
-        const friendId = friend.id;
-        const userDisplayName = user.displayName;
-        const userId = user._id;
-        console.log(res);
-        socket.emit('CANCEL_REQUEST', { friendId, userDisplayName, userId });
+        const data = {
+          sender: user,
+          receiver: friend,
+        };
+
+        socket.emit('CANCEL_REQUEST', data);
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -174,8 +272,6 @@ function FriendRequests({ auth, user }) {
       });
   }
 
- 
-
   return (
     <div>
       <h3>Friend Requests</h3>
@@ -187,21 +283,25 @@ function FriendRequests({ auth, user }) {
             <div class="text-primary" onClick={(evt) => acceptRequest(request.sender)}>
               Accept
             </div>
+            <div class="text-primary" onClick={(evt) => rejectRequest(request.sender)}>
+              Reject
+            </div>
           </div>
         ))}
       {!friendRequests || (friendRequests.length === 0 && <div className="fst-italic">No Friend Requests</div>)}
       {sentFriendRequests && sentFriendRequests.length > 0 && <h3>Sent Requests</h3>}
       {sentFriendRequests &&
-        sentFriendRequests.length > 0 && 
+        sentFriendRequests.length > 0 &&
         _.map(sentFriendRequests, (sentRequest) => (
           <div>
             <div className="card p-1 common-room">
               <div>{sentRequest.friend.displayName}</div>
-              <div class="text-danger" onClick={(evt) => cancelSentRequest(sentRequest.friend)}>Cancel</div>
+              <div class="text-danger" onClick={(evt) => cancelSentRequest(sentRequest.friend)}>
+                Cancel
+              </div>
             </div>
           </div>
         ))}
-        
     </div>
   );
 }

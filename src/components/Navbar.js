@@ -1,4 +1,4 @@
-function Navbar({ auth, onLogout, changePage }) {
+function Navbar({ auth, onLogout, changePage, changeSubPage }) {
   function onClickLogout(evt) {
     evt.preventDefault();
     onLogout();
@@ -16,13 +16,13 @@ function Navbar({ auth, onLogout, changePage }) {
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
        {!auth && <li class="nav-item " >
-          <a class="nav-link active" aria-current="page" href="#" onClick={(evt) => changePage('Register')}  >Register</a>
+          <a class="nav-link active" aria-current="page" href="#" onClick={(evt) => changeSubPage('Register')}  >Register</a>
         </li> }
         {auth && <li class="nav-item">
-          <a class="nav-link" href="#" onClick={(evt) => changePage('Dashboard')} >Dashboard</a>
+          <a class="nav-link" href="#" onClick={(evt) => changeSubPage('Dashboard')} >Dashboard</a>
         </li> }
         {auth && <li class="nav-item">
-          <a class="nav-link" href="#" onClick={(evt) => changePage('FindRooms')} >Find Rooms</a>
+          <a class="nav-link" href="#" onClick={(evt) => changeSubPage('FindRooms')} >Find Rooms</a>
         </li> }
        {auth && <li class="nav-item">
           <a class="nav-link" href="#" onClick={(evt) => onClickLogout(evt)}>Logout</a>

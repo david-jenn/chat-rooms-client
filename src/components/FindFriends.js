@@ -26,14 +26,14 @@ function FindFriends({ auth, user, friendList }) {
   }
 
   function filterFriends(userList) {
-    console.log(userList);
-    console.log(friendList);
+  
+   
 
     const friendIds = friendList.map((item) => {
       return item.friend?.id;
     });
 
-    console.log(friendIds);
+  
     const updatedUserList = [];
     for (const userItem of userList) {
       if (!friendIds.includes(userItem._id) && userItem._id !== auth.userId) {
@@ -74,8 +74,8 @@ function FindFriends({ auth, user, friendList }) {
 
   function sendFriendRequest(friend) {
     friendInputRef.current.blur();
-    console.log('clicked!')
-    console.log(user);
+    
+   
     const sender = {
       id: user._id,
       displayName: user.displayName,
@@ -93,7 +93,7 @@ function FindFriends({ auth, user, friendList }) {
         const userDisplayName = user.displayName;
         const userId = user._id;
         socket.emit('FRIEND_REQUEST', {friendId, userDisplayName, userId});
-        console.log(res);
+       
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;

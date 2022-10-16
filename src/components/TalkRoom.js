@@ -1,20 +1,19 @@
 import '../App.scss';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-
-import { io } from 'socket.io-client';
 import axios from 'axios';
+
+import { SocketContext } from '../context/socket';
 
 const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
-function TalkRoom({ changePage, auth, ccRoom }) {
+function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData }) {
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
   const ccUsername = auth.payload.displayName;
   let messages = [];
 
-  const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
   const [typingMessage, setTypingMessage] = useState('');
   const [messageList, setMessageList] = useState([]);
@@ -28,6 +27,8 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   const [roomJoined, setRoomJoined] = useState(false);
   let messagesLoaded = false;
 
+  const socket = useContext(SocketContext);
+
   useEffect(() => {
     scrollToBottom();
     //Might be expensive?
@@ -35,7 +36,10 @@ function TalkRoom({ changePage, auth, ccRoom }) {
 
   useEffect(() => {
     console.log(socket);
-    if (!ccRoom) {
+    if(!directChatData) {
+      return;
+    }
+    if (!directChatData.directChatId) {
       return;
     }
     
@@ -43,23 +47,10 @@ function TalkRoom({ changePage, auth, ccRoom }) {
       fetchRoomMessages();
     }
 
-    if (!socket) {
-      setSocket(
-        io(URL, {
-          withCredentials: true,
-        })
-      );
-    }
 
     const username = auth.payload.displayName;
-    const room = ccRoom;
+    const room = directChatData.directChatId;
     
-
-    if (socket?.connected) {
-      console.log('connected!');
-    } else {
-      console.log('disconnected!');
-    }
     if (socket) {
       if (!roomJoined) {
         socket.emit('joinRoom', { username, room });
@@ -86,22 +77,16 @@ function TalkRoom({ changePage, auth, ccRoom }) {
       });
       console.log(socket);
     }
-  }, [socket?.connected, ccRoom]);
+  }, [socket?.connected, directChatData?.directChatId]);
 
   function fetchRoomMessages() {
-    axios(`${process.env.REACT_APP_API_URL}/api/comment/${ccRoom}/list`, {
+    axios(`${process.env.REACT_APP_API_URL}/api/comment/${directChatData.directChatId}/list`, {
       method: 'get',
     })
       .then((res) => {
         if (_.isArray(res.data)) {
           messages = res.data;
           messagesLoaded = true;
-          const welcomeMessage = {
-            date: new Date(),
-            msg: `Welcome to TalkRooms, room: ${ccRoom}`,
-            username: 'TalkRooms',
-          };
-          messages.push(welcomeMessage);
           console.log(messages);
           setMessageList(messages);
         }
@@ -117,7 +102,7 @@ function TalkRoom({ changePage, auth, ccRoom }) {
     // setMessageListItems([...messageListItems, message]);
 
     //Emit message to server
-    socket.emit('chatMessage', ccUsername, message, ccRoom);
+    socket.emit('chatMessage', ccUsername, message, directChatData.directChatId);
     setMessage('');
     messageInputRef.current.blur();
   }
@@ -150,14 +135,19 @@ function TalkRoom({ changePage, auth, ccRoom }) {
   }
 
   function scrollToBottom() {
-    if(ccRoom) {
+    if(directChatData && directChatData.directChatId) {
       messagesEndRef.current.scrollIntoView();
     }
     
   }
 
   function setInputFocused(evt) {
-    socket.emit('typing', ccUsername, evt, ccRoom);
+    socket.emit('typing', ccUsername, evt, directChatData.directChatId);
+  }
+  function onLeaveRoom() {
+    console.log('leaving');
+    getDirectChatData(null);
+
   }
 
   return (
@@ -175,11 +165,11 @@ function TalkRoom({ changePage, auth, ccRoom }) {
               </div>
             )}
           </div> */}
-          {ccRoom && (
+          {directChatData && directChatData?.directChatId && (
           <div className="col-md-12">
             <div className="mb-2 d-flex justify-content-between">
-              <h1 className="fs-3">Room {ccRoom}</h1>
-              <button className="btn btn-danger" onClick={(evt) => onSignOut(evt)}>
+              <h1 className="fs-3">{directChatData.friend?.displayName}</h1>
+              <button className="btn btn-danger" onClick={(evt) => onLeaveRoom()}>
                 Leave
               </button>
             </div>

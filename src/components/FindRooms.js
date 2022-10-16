@@ -5,7 +5,7 @@ import CommonRoom from './CommonRoom';
 import CreateRoom from './CreateRoom';
 import SearchRooms from './SearchRooms';
 
-function FindRooms({ getRoom, changePage }) {
+function FindRooms({ getRoom, changePage, changeSubPage }) {
   const [room, setRoom] = useState('');
   const [roomPassword, setRoomPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -19,7 +19,7 @@ function FindRooms({ getRoom, changePage }) {
     }
 
     getRoom(room);
-    changePage('TalkRoom');
+    changeSubPage('TalkRoom');
   }
 
   return (

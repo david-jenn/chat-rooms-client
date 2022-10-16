@@ -40,14 +40,22 @@
 }
 
 
+
+
 @media screen and ( min-height: 400px ) {
   .friend-container {
     height: 65vh
+  }
+  .scroll-item {
+    height: 30vh
   }
 }
 @media screen and ( min-height: 500px ) {
   .friend-container {
     height: 70vh
+  }
+  .scroll-item {
+    height: 40vh
   }
 }
 
@@ -55,26 +63,42 @@
   .friend-container {
    height: 75vh
   }
+  .scroll-item {
+    height: 50vh
+  }
 }
 @media screen and ( min-height: 700px ) {
   .friend-container {
     height: 80vh
+  }
+  .scroll-item {
+    height: 58vh
   }
 }
 @media screen and ( min-height: 800px ) {
   .friend-container {
     height: 82vh
   }
+  .scroll-item {
+    height: 63vh
+  }
 }
 @media screen and ( min-height: 1000px ) {
   .friend-container {
     height: 87vh
   }
+  .scroll-item {
+    height: 70vh
+  }
 }
 @media screen and ( min-height: 1500px ) {
   .friend-container {
-    max-height: 90vh
+    height: 90vh
   }
+  .scroll-item {
+    height: 80vh
+  }
+  
 }
 .friend-child {
   width: 100%;

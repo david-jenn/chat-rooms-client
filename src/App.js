@@ -12,12 +12,14 @@ import Login from './components/Login';
 import FindRooms from './components/FindRooms';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import Container from './components/Container';
 
 import { io } from 'socket.io-client';
 
 function App() {
   const [auth, setAuth] = useState(null);
   const [page, setPage] = useState('SignIn');
+  const [subPage, setSubPage] = useState('Dashboard')
   const [username, setUsername] = useState('');
   const [room, setRoom] = useState('');
   let roomName;
@@ -25,7 +27,8 @@ function App() {
 
   function onLogin(auth) {
     setAuth(auth);
-    setPage('Dashboard');
+    setPage('Container');
+    setSubPage('Dashboard')
   }
 
   function onLogout(auth) {
@@ -38,6 +41,10 @@ function App() {
 
   function changePage(pageName) {
     setPage(pageName);
+  }
+  function changeSubPage(subPageName) {
+    setPage('Container')
+    setSubPage(subPageName);
   }
 
   function getRoom(room) {
@@ -59,13 +66,16 @@ function App() {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <Navbar auth={auth} onLogout={onLogout} changePage={changePage} />
+      <Navbar auth={auth} onLogout={onLogout} changePage={changePage} changeSubPage={changeSubPage} />
       <main className="container-fluid flex-grow-1">
-        {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom} />}
+        {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom}  />}
         {page === 'Register' && <Register onLogin={onLogin}/>}
-        {page === 'FindRooms' && <FindRooms auth={auth} getRoom={getRoom} changePage={changePage} onInputChange={onInputChange} />}
-        {page === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
-        {page === 'Dashboard' && auth && <Dashboard changePage={changePage} auth={auth} />}
+        {page === 'Container' && <Container changePage={changePage} auth={auth} getRoom={getRoom} room={room} onInputChange={onInputChange} changeSubPage={changeSubPage} subPage={subPage}  />}
+        
+        
+        
+        
+        
 
       </main>
       <Footer />
