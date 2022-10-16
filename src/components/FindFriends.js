@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import _ from 'lodash';
 import { SocketContext } from '../context/socket';
+import { ToastContainer, toast } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
 
 import InputField from './InputField';
 
@@ -93,6 +95,7 @@ function FindFriends({ auth, user, friendList }) {
         const userDisplayName = user.displayName;
         const userId = user._id;
         socket.emit('FRIEND_REQUEST', {friendId, userDisplayName, userId});
+        toast.success(`Friend request sent to ${friend.displayName}`)
        
       })
       .catch((err) => {
@@ -155,6 +158,7 @@ function FindFriends({ auth, user, friendList }) {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

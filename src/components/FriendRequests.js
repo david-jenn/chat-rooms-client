@@ -3,6 +3,9 @@ import axios from 'axios';
 import _, { set } from 'lodash';
 import { SocketContext } from '../context/socket';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function FriendRequests({ auth, user }) {
   const [error, setError] = useState('');
   const [friendRequests, setFriendRequests] = useState([]);
@@ -25,7 +28,6 @@ function FriendRequests({ auth, user }) {
   });
 
   const requestCancelReceiver = useCallback((data) => {
-
     const updatedRequests = [];
     for (const request of receivedRequests) {
       if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
@@ -45,10 +47,22 @@ function FriendRequests({ auth, user }) {
     }
     sentRequests = [...updatedRequests];
     setFriendRequests(updatedRequests);
+    toast.success(`You are now friends with ${data.receiver?.displayName}`)
+  });
+
+  const requestAcceptedReceiver = useCallback((data) => {
+    const updatedRequests = [];
+    for (const request of sentRequests) {
+      if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
+        updatedRequests.push(request);
+      }
+    }
+    sentRequests = [...updatedRequests];
+    setSentFriendRequests(updatedRequests);
+    toast.success(`You are now friends with ${data.sender?.displayName}`)
   });
 
   const requestRejectReceiver = useCallback((data) => {
-    
     const updatedRequests = [];
     for (const request of sentRequests) {
       if (request.sender?.id === data.receiver.id && request.friend?.id !== data.sender?._id) {
@@ -57,10 +71,9 @@ function FriendRequests({ auth, user }) {
     }
     sentRequests = [...updatedRequests];
     setSentFriendRequests(updatedRequests);
-    
+   
   });
   const requestRejectSender = useCallback((data) => {
-
     const updatedRequests = [];
     for (const request of receivedRequests) {
       if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
@@ -70,23 +83,21 @@ function FriendRequests({ auth, user }) {
     sentRequests = [...updatedRequests];
     setFriendRequests(updatedRequests);
     
+    
   });
-
-  
-
- 
 
   useEffect(() => {
     getFriendRequests();
     getSentFriendRequests();
 
-    socket.on('REQUEST_ACCEPTED_SENDER', requestCancelReceiver);
-    socket.on('REQUEST_ACCEPTED_RECEIVER', requestCancelSender);
+    socket.on('REQUEST_ACCEPTED_SENDER', requestAcceptedSender);
+    socket.on('REQUEST_ACCEPTED_RECEIVER', requestAcceptedReceiver);
     socket.on('REQUEST_REJECTED_RECEIVER', requestRejectReceiver);
     socket.on('REQUEST_REJECTED_SENDER', requestRejectSender);
 
     socket.on('REQUEST_RECEIVED', (message) => {
       getFriendRequests();
+      toast.success(message)
     });
 
     socket.on('REQUEST_SENT', (message) => {
@@ -114,7 +125,6 @@ function FriendRequests({ auth, user }) {
       method: 'get',
     })
       .then((res) => {
-       
         setFriendRequests(res.data);
         receivedRequests = [...res.data];
       })
@@ -139,7 +149,6 @@ function FriendRequests({ auth, user }) {
       method: 'get',
     })
       .then((res) => {
-      
         setSentFriendRequests(res.data);
         sentRequests = [...res.data];
       })
@@ -178,6 +187,7 @@ function FriendRequests({ auth, user }) {
           receiver: friend,
         };
         socket.emit('ACCEPT_REQUEST', data);
+        
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -197,7 +207,6 @@ function FriendRequests({ auth, user }) {
   }
 
   function rejectRequest(friend) {
-    
     const userData = {
       id: user._id,
       displayName: user.displayName,
@@ -214,7 +223,7 @@ function FriendRequests({ auth, user }) {
           sender: user,
           receiver: friend,
         };
-
+        toast.warning(`Friend request from ${friend.displayName} rejected`)
         socket.emit('REJECT_REQUEST', data);
       })
       .catch((err) => {
@@ -235,7 +244,6 @@ function FriendRequests({ auth, user }) {
   }
 
   function cancelSentRequest(friend) {
-
     const userData = {
       id: user._id,
       displayName: user.displayName,
@@ -254,6 +262,7 @@ function FriendRequests({ auth, user }) {
         };
 
         socket.emit('CANCEL_REQUEST', data);
+        toast.warning(`Friend request to ${friend.displayName} canceled`)
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -302,6 +311,7 @@ function FriendRequests({ auth, user }) {
             </div>
           </div>
         ))}
+        <ToastContainer />
     </div>
   );
 }
