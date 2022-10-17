@@ -9,7 +9,7 @@ import FindFriends from './FindFriends';
 import FriendList from './FriendList';
 import FriendRequests from './FriendRequests';
 
-function Friends({ auth, user, getDirectChatData }) {
+function Friends({ auth, user, getDirectChatData, showSuccess }) {
   const [error, setError] = useState('');
   const [friendList, setFriendList] = useState([]);
 
@@ -25,7 +25,7 @@ function Friends({ auth, user, getDirectChatData }) {
           <FriendList auth={auth} user={user} setFriendList={setFriendList} getDirectChatData={getDirectChatData} />
         </div>
         <div>
-          <FriendRequests auth={auth} user={user} />
+          <FriendRequests auth={auth} user={user} showSuccess={showSuccess}/>
         </div>
      
       </div>

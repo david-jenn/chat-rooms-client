@@ -8,7 +8,7 @@ import TalkRoom from './TalkRoom';
 
 
 
-function Dashboard({ auth, changePage, changeSubPage, user }) {
+function Dashboard({ auth, changePage, changeSubPage, user, showSuccess }) {
 
   const socket = useContext(SocketContext);
   const [directChatData, setDirectChatData] = useState(null);
@@ -23,7 +23,7 @@ function Dashboard({ auth, changePage, changeSubPage, user }) {
     <div className="row dashboard">
       <div className="friend-container col-md-3">
         <div className="friend-wrapper">
-          <Friends auth={auth} user={user} getDirectChatData={getDirectChatData} />
+          <Friends auth={auth} user={user} getDirectChatData={getDirectChatData} showSuccess={showSuccess} />
         </div>
       </div>
       <div className="friend-container col-md-9">

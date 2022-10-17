@@ -6,7 +6,7 @@ import { SocketContext } from '../context/socket';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function FriendRequests({ auth, user }) {
+function FriendRequests({ auth, user, showSuccess }) {
   const [error, setError] = useState('');
   const [friendRequests, setFriendRequests] = useState([]);
   const [sentFriendRequests, setSentFriendRequests] = useState([]);
@@ -283,7 +283,7 @@ function FriendRequests({ auth, user }) {
 
   return (
     <div>
-      <h3>Friend Requests</h3>
+      <h3 className="fs-5">Friend Requests</h3>
       {friendRequests &&
         friendRequests.length > 0 &&
         _.map(friendRequests, (request) => (
@@ -297,8 +297,10 @@ function FriendRequests({ auth, user }) {
             </div>
           </div>
         ))}
-      {!friendRequests || (friendRequests.length === 0 && <div className="fst-italic">No Friend Requests</div>)}
-      {sentFriendRequests && sentFriendRequests.length > 0 && <h3>Sent Requests</h3>}
+      {!friendRequests || (friendRequests.length === 0 && <div className="fst-italic">No incoming requests pending</div>)}
+      <div className="mb-3"></div>
+      <h3 className="fs-5">Sent Requests</h3>
+      {!sentFriendRequests || sentFriendRequests.length === 0 && <div className="fst-italic">No sent requests pending</div> }
       {sentFriendRequests &&
         sentFriendRequests.length > 0 &&
         _.map(sentFriendRequests, (sentRequest) => (
@@ -311,7 +313,7 @@ function FriendRequests({ auth, user }) {
             </div>
           </div>
         ))}
-        <ToastContainer />
+       
     </div>
   );
 }

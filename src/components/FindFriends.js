@@ -117,6 +117,7 @@ function FindFriends({ auth, user, friendList }) {
 
   return (
     <div className="mb-3 pb-3 border-2 border-bottom border-dark">
+     
       <label htmlFor="room-search-input" className="form-label d-none">
         Search for friends
       </label>
@@ -149,13 +150,14 @@ function FindFriends({ auth, user, friendList }) {
                       </button>
                     </div>
                   </div>
+                  
                 </div>
               </div>
             ))}
           </div>
         </div>
       )}
-      <ToastContainer />
+     
     </div>
   );
 }

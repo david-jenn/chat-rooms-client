@@ -95,7 +95,7 @@ function FriendList({ auth, user, setFriendList, getDirectChatData }) {
   }
 
   return (
-    <div className="">
+    <div className="mb-3">
       
       {friendConnections &&
         friendConnections.length > 0 &&

@@ -7,7 +7,7 @@ import Dashboard from './Dashboard';
 import TalkRoom from './TalkRoom';
 import FindRooms from './FindRooms';
 
-function Container({ auth, room, changePage, getRoom, onInputChange, changeSubPage, subPage }) {
+function Container({ auth, room, changePage, getRoom, onInputChange, changeSubPage, subPage, showSuccess }) {
   const [error, setError] = useState('');
   const [user, setUser] = useState({});
   const [joined, setJoined] = useState(false);
@@ -76,7 +76,7 @@ function Container({ auth, room, changePage, getRoom, onInputChange, changeSubPa
       )}
       {subPage === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
       {subPage === 'Dashboard' && auth && (
-        <Dashboard changePage={changePage} auth={auth} user={user} changeSubPage={changeSubPage} />
+        <Dashboard changePage={changePage} auth={auth} user={user} changeSubPage={changeSubPage} showSuccess={showSuccess} />
       )}
     </SocketContext.Provider>
   );

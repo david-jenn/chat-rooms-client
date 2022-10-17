@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import _ from 'lodash';
 import moment from 'moment';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Navbar from './components/Navbar';
 import SignIn from './components/SignIn';
@@ -62,15 +64,24 @@ function App() {
     setValue(newValue);
   }
 
+  function showError(message) {
+    toast(message, { type: 'error', position: 'bottom-right' });
+  }
+
+  function showSuccess(message) {
+    toast(message, { type: 'success', position: 'bottom-right' });
+  }
+
   //const navigate = useNavigate();
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar auth={auth} onLogout={onLogout} changePage={changePage} changeSubPage={changeSubPage} />
+      <ToastContainer />
       <main className="container-fluid flex-grow-1">
         {page === 'SignIn' && <Login onLogin={onLogin} getUsername={getUsername} getRoom={getRoom}  />}
         {page === 'Register' && <Register onLogin={onLogin}/>}
-        {page === 'Container' && <Container changePage={changePage} auth={auth} getRoom={getRoom} room={room} onInputChange={onInputChange} changeSubPage={changeSubPage} subPage={subPage}  />}
+        {page === 'Container' && <Container changePage={changePage} auth={auth} getRoom={getRoom} room={room} onInputChange={onInputChange} changeSubPage={changeSubPage} subPage={subPage} showSuccess={showSuccess}  />}
         
         
         
