@@ -35,27 +35,25 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   });
 
   useEffect(() => {
+    console.log(directChatData);
     console.log(socket);
-    if(!directChatData) {
+    if (!directChatData) {
       return;
     }
     if (!directChatData.directChatId) {
       return;
     }
-    
+
     if (!messagesLoaded) {
       fetchRoomMessages();
     }
 
-
     const username = auth.payload.displayName;
     const room = directChatData.directChatId;
-    
+
     if (socket) {
-      if (!roomJoined) {
-        socket.emit('joinRoom', { username, room });
-        setRoomJoined(true);
-      }
+      socket.emit('joinRoom', { username, room });
+      setRoomJoined(true);
 
       socket.on('message', (message) => {
         console.log(message);
@@ -67,7 +65,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
       });
       socket.on('test', (message) => {
         console.log(message);
-      })
+      });
       socket.on('typingOutput', (message) => {
         setTypingMessage(message);
       });
@@ -77,7 +75,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
       });
       console.log(socket);
     }
-  }, [socket?.connected, directChatData?.directChatId]);
+  }, [socket?.connected, directChatData]);
 
   function fetchRoomMessages() {
     axios(`${process.env.REACT_APP_API_URL}/api/comment/${directChatData.directChatId}/list`, {
@@ -135,10 +133,9 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   }
 
   function scrollToBottom() {
-    if(directChatData && directChatData.directChatId) {
+    if (directChatData && directChatData.directChatId) {
       messagesEndRef.current.scrollIntoView();
     }
-    
   }
 
   function setInputFocused(evt) {
@@ -147,7 +144,6 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   function onLeaveRoom() {
     console.log('leaving');
     getDirectChatData(null);
-
   }
 
   return (
@@ -166,14 +162,14 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
             )}
           </div> */}
           {directChatData && directChatData?.directChatId && (
-          <div className="col-md-12">
-            <div className="mb-2 d-flex justify-content-between">
-              <h1 className="fs-3">{directChatData.friend?.displayName}</h1>
-              <button className="btn btn-danger" onClick={(evt) => onLeaveRoom()}>
-                Leave
-              </button>
-            </div>
-            
+            <div className="col-md-12">
+              <div className="mb-2 d-flex justify-content-between">
+                <h1 className="fs-3">{directChatData.friend?.displayName}</h1>
+                <button className="btn btn-danger" onClick={(evt) => onLeaveRoom()}>
+                  Leave
+                </button>
+              </div>
+
               <div className="scroll-item mb-3 border border-dark p-3">
                 {_.map(messageList, (messageListItem) => (
                   <div>
@@ -191,30 +187,31 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
                 <div className="messages-end"></div>
                 <div ref={messagesEndRef}></div>
               </div>
-            
-            <form className="">
-              <div className="mb-2">
-                <label htmlFor="message" className="form-label visually-hidden">
-                  Your Message
-                </label>
-                <input
-                  id="message"
-                  className="form-control"
-                  value={message}
-                  ref={messageInputRef}
-                  onChange={(evt) => onInputChange(evt, setMessage)}
-                  onBlur={(evt) => setInputFocused(false)}
-                  onFocus={(evt) => setInputFocused(true)}
-                ></input>
-              </div>
-              <div className="mb-2 d-flex">
-                <button type="submit" className="btn btn-primary me-3" onClick={(evt) => onSendMessage(evt)}>
-                  Send
-                </button>
-                <div className="fst-italic">{typingMessage}</div>
-              </div>
-            </form>
-          </div>)}
+
+              <form className="">
+                <div className="mb-2">
+                  <label htmlFor="message" className="form-label visually-hidden">
+                    Your Message
+                  </label>
+                  <input
+                    id="message"
+                    className="form-control"
+                    value={message}
+                    ref={messageInputRef}
+                    onChange={(evt) => onInputChange(evt, setMessage)}
+                    onBlur={(evt) => setInputFocused(false)}
+                    onFocus={(evt) => setInputFocused(true)}
+                  ></input>
+                </div>
+                <div className="mb-2 d-flex">
+                  <button type="submit" className="btn btn-primary me-3" onClick={(evt) => onSendMessage(evt)}>
+                    Send
+                  </button>
+                  <div className="fst-italic">{typingMessage}</div>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>
