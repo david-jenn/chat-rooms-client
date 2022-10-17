@@ -21,9 +21,9 @@ function Navbar({ auth, onLogout, changePage, changeSubPage }) {
         {auth && <li class="nav-item">
           <a class="nav-link" href="#" onClick={(evt) => changeSubPage('Dashboard')} >Dashboard</a>
         </li> }
-        {auth && <li class="nav-item">
+        {/* {auth && <li class="nav-item">
           <a class="nav-link" href="#" onClick={(evt) => changeSubPage('FindRooms')} >Find Rooms</a>
-        </li> }
+        </li> } */}
        {auth && <li class="nav-item">
           <a class="nav-link" href="#" onClick={(evt) => onClickLogout(evt)}>Logout</a>
         </li> }

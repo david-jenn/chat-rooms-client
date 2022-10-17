@@ -16,10 +16,7 @@ function FindFriends({ auth, user, friendList }) {
 
   const socket = useContext(SocketContext);
 
-  useEffect(() => {
-   
-    
-  }, [socket]);
+
 
   function onInputChange(evt, setValue) {
     const newValue = evt.currentTarget.value;

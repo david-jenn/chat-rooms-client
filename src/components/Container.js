@@ -1,37 +1,43 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import _ from "lodash";
-import { SocketContext, socket } from "../context/socket";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import _ from 'lodash';
+import { SocketContext, socket } from '../context/socket';
 
-import Dashboard from "./Dashboard"
-import TalkRoom from "./TalkRoom"
-import FindRooms from "./FindRooms"
+import Dashboard from './Dashboard';
+import TalkRoom from './TalkRoom';
+import FindRooms from './FindRooms';
 
-function Container ({auth, room, changePage, getRoom, onInputChange, changeSubPage, subPage}) {
-
-
+function Container({ auth, room, changePage, getRoom, onInputChange, changeSubPage, subPage }) {
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
+  const [joined, setJoined] = useState(false);
+  const [reconnectionAttempts, setReconnectionAttempts] = useState(0);
 
+  //socket
+  useEffect(() => {
 
-    //socket
- useEffect(() => {
- 
-  if(user) {
     socket.emit('USER_JOIN', user);
-  }
-  
- },[socket, user])
+    socket.on('JOINED', (connected) => {
+      setJoined(connected)
+    })
 
- 
+    if(!joined) {
+      setReconnectionAttempts(reconnectionAttempts + 1);
+    }
+
+    return () => {
+      socket.off('USER_JOIN');
+      socket.off('JOINED');
+      
+    };
+    
+  }, []);
 
   useEffect(() => {
-   
     getUser(auth.payload._id);
   }, [auth]);
 
   function getUser(id) {
-
     axios(`${process.env.REACT_APP_API_URL}/api/user/${id}`, {
       method: 'get',
     })
@@ -57,16 +63,23 @@ function Container ({auth, room, changePage, getRoom, onInputChange, changeSubPa
       });
   }
 
-
   return (
     <SocketContext.Provider value={socket}>
-      
-        {subPage === 'FindRooms' && <FindRooms auth={auth} getRoom={getRoom} changePage={changePage} onInputChange={onInputChange} changeSubPage={changeSubPage} />}
-        {subPage === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
-        {subPage === 'Dashboard' && auth && <Dashboard changePage={changePage} auth={auth} user={user} changeSubPage={changeSubPage} />}
-
-        </SocketContext.Provider>
-  )
+      {subPage === 'FindRooms' && (
+        <FindRooms
+          auth={auth}
+          getRoom={getRoom}
+          changePage={changePage}
+          onInputChange={onInputChange}
+          changeSubPage={changeSubPage}
+        />
+      )}
+      {subPage === 'TalkRoom' && auth && room && <TalkRoom changePage={changePage} auth={auth} ccRoom={room} />}
+      {subPage === 'Dashboard' && auth && (
+        <Dashboard changePage={changePage} auth={auth} user={user} changeSubPage={changeSubPage} />
+      )}
+    </SocketContext.Provider>
+  );
 }
 
-export default Container
+export default Container;
