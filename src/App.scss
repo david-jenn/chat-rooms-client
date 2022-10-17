@@ -5,30 +5,6 @@
 @import "~bootswatch/dist/cerulean/bootswatch";
 
 
-// body {
-
-//   // height: 100vh;
-// }
-
-// .wrapper {
-//   display: flex;
-//   flex-direction: column;
-//   // min-height: 100vh;
-// }
-
-// .dashboard {
-
-// }
-// .main-wrapper {
-//   flex-grow: 1;
-// }
-
-// .full-column {
-//   min-height: 75vh;
-// }
-
-// .friend-search-item {}
-
 .friend-wrapper {
   width: 100%;
   height: 100%;
@@ -107,11 +83,6 @@
     padding-right: 13px; /* Increase/decrease this value for cross-browser compatibility */
     box-sizing: content-box; /* So the width will be 100% + 17px */
 }
-// .friend-list-wrapper {
-  
-// }
-
-
 
 .scroll-item {
   overflow-y: scroll;
@@ -121,13 +92,7 @@
 .big-margin {
   margin-bottom: 20px;
 }
-// h2 {
-//   width: 100%;
-// }
 
-// .messages-end {
-  
-// }
 
 .common-room :hover {
   background-color: #2fa4e7;
@@ -135,8 +100,31 @@
   cursor: pointer;
 }
 
+.inbound-msg {
+  background-color: lightgray;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 25px;
+  max-width: 70%;
+  
+}
+
+.outbound-msg {
+  background-color: #2fa4e7;
+  color:white;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 25px;
+  max-width: 70%;
+ 
+}
+.timestamp {
+  font-size:small;
+  font-style: italic;
+}
 
 
-// .main-background {
-//   background-color: #82D1FF
-// }

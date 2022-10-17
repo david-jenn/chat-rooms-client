@@ -27,7 +27,7 @@ function Dashboard({ auth, changePage, changeSubPage, user, showSuccess }) {
         </div>
       </div>
       <div className="friend-container col-md-9">
-        <div><TalkRoom changePage={changePage} auth={auth} directChatData={directChatData} getDirectChatData={getDirectChatData} /></div>
+        <div><TalkRoom changePage={changePage} auth={auth} user={user} directChatData={directChatData} getDirectChatData={getDirectChatData} /></div>
       </div>
       {/* <div className="friend-container col-md-3">
         <div>Other data</div>

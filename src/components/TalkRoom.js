@@ -63,17 +63,14 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
         setUserList(users);
         setRoomData(room);
       });
-      socket.on('test', (message) => {
-        console.log(message);
-      });
+
       socket.on('typingOutput', (message) => {
         setTypingMessage(message);
       });
-      socket.on('disconnect', () => {
-        console.log('hello');
-        changePage('Dashboard');
-      });
-      console.log(socket);
+
+      return () => {
+       
+      }
     }
   }, [socket?.connected, directChatData]);
 
@@ -93,39 +90,46 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
         console.log(err);
       });
   }
+
+  function saveNewMessage(message) {
+    axios(`${process.env.REACT_APP_API_URL}/api/comment/new`, {
+      method: 'put',
+      data: message
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
   //
 
   function onSendMessage(evt) {
     evt.preventDefault();
-    // setMessageListItems([...messageListItems, message]);
-
-    //Emit message to server
-    socket.emit('chatMessage', ccUsername, message, directChatData.directChatId);
+    if(!message) {
+      return;
+    }
+    
+    socket.emit('CHAT_MESSAGE', user.displayName, user._id, message, directChatData.directChatId);
     setMessage('');
     messageInputRef.current.blur();
+    const comment = {
+      userId: user._id,
+      displayName: user.displayName,
+      room: directChatData.directChatId,
+      msg: message
+    }
+    saveNewMessage(comment);
   }
 
   function outputMessage(msgObj) {
     //console.log(messages);
     messages.push(msgObj);
-    setMessageList(messages);
+    setMessageList([...messages]);
   }
 
-  function onSignOut(evt) {
-    if (evt) {
-      evt.preventDefault();
-    }
-
-    //console.log('fired!');
-    setSignedIn(false);
-    if (socket) {
-      socket.disconnect();
-    }
-
-    setUserList([]);
-    setMessageList([]);
-    changePage('Dashboard');
-  }
+    
 
   function onInputChange(evt, setValue) {
     const newValue = evt.currentTarget.value;
@@ -176,10 +180,11 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
                     <div className="item mb-2">
                       <div className="item-header d-flex justify-content-between">
                         <div>{messageListItem.username}</div>
-                        {messageListItem.timestamp && <div>{moment(messageListItem.timestamp).fromNow()}</div>}
-                        {messageListItem.date && <div>{moment(messageListItem.date).fromNow()}</div>}
                       </div>
-                      <div className="item-body">{messageListItem.msg}</div>
+                      <div className={messageListItem.userId === user._id ? 'd-flex flex-column align-items-end' : 'd-flex flex-column align-items-start'}> 
+                        <div  className={messageListItem.userId === user._id ? 'outbound-msg' : 'inbound-msg' }>{messageListItem.msg}</div>
+                        <div className="timestamp">{moment(messageListItem.timestamp).fromNow()}</div>
+                      </div>
                     </div>
                   </div>
                 ))}
