@@ -98,7 +98,7 @@ function Login({onLogin}) {
         error={passwordError}
         shouldValidate={shouldValidate || password}
       />
-      <div>Test</div>
+      
 
       <div className="mb-3 d-flex align-items-center justify-content-between">
         <div className="d-flex flex-direction-column">

@@ -31,7 +31,7 @@ function Container({ auth, room, changePage, getRoom, onInputChange, changeSubPa
       
     };
     
-  }, []);
+  }, [user, socket, joined]);
 
   useEffect(() => {
     getUser(auth.payload._id);
