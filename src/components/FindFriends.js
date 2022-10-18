@@ -116,16 +116,16 @@ function FindFriends({ auth, user, friendList }) {
   }
 
   return (
-    <div className="mb-3 pb-3 border-2 border-bottom border-dark">
+    <div className="mb-1 pb-3 border-2 border-bottom border-secondary">
      
       <label htmlFor="room-search-input" className="form-label d-none">
-        Search for friends
+        Search Users
       </label>
       <input
         id="search-display-name"
         type="username"
         className="form-control"
-        placeholder="Search For Friends"
+        placeholder="Search Users"
         onChange={(evt) => onInputChange(evt, setFriendSearch)}
         onFocus={(evt) => fetchUsers(friendSearch)}
         onBlur={(evt) => setSearchResults([])}

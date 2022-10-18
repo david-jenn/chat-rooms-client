@@ -7,7 +7,7 @@ function Navbar({ auth, onLogout, changePage, changeSubPage }) {
   return (
     <div>
 
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-3">
+<nav class="navbar navbar-expand-sm navbar-dark mb-1  border-bottom border-secondary">
   <div class="container-fluid">
     <a class="navbar-brand" href="#" onClick={ auth ? (evt) => changePage('Dashboard') : (evt) => changePage('Login') }>Talk Rooms</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">

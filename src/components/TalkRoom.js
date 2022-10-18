@@ -4,6 +4,10 @@ import _ from 'lodash';
 import moment from 'moment';
 import axios from 'axios';
 
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faArrowLeft, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+
 import { SocketContext } from '../context/socket';
 
 const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
@@ -17,6 +21,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   const [message, setMessage] = useState('');
   const [typingMessage, setTypingMessage] = useState('');
   const [messageList, setMessageList] = useState([]);
+  const [messagesPending, setMessagesPending] = useState(false);
 
   const [roomData, setRoomData] = useState(null);
   const [userList, setUserList] = useState([]);
@@ -30,9 +35,13 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    scrollToBottom();
+    if (!messagesPending) {
+      scrollToBottom();
+    }
+
     //Might be expensive?
   });
+  
 
   useEffect(() => {
     console.log(directChatData);
@@ -68,13 +77,12 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
         setTypingMessage(message);
       });
 
-      return () => {
-       
-      }
+      return () => {};
     }
   }, [socket?.connected, directChatData]);
 
   function fetchRoomMessages() {
+    setMessagesPending(true);
     axios(`${process.env.REACT_APP_API_URL}/api/comment/${directChatData.directChatId}/list`, {
       method: 'get',
     })
@@ -83,6 +91,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
           messages = res.data;
           messagesLoaded = true;
           console.log(messages);
+          setMessagesPending(false);
           setMessageList(messages);
         }
       })
@@ -94,23 +103,23 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   function saveNewMessage(message) {
     axios(`${process.env.REACT_APP_API_URL}/api/comment/new`, {
       method: 'put',
-      data: message
+      data: message,
     })
       .then((res) => {
         console.log(res);
       })
       .catch((err) => {
         console.log(err);
-      })
+      });
   }
   //
 
   function onSendMessage(evt) {
     evt.preventDefault();
-    if(!message) {
+    if (!message) {
       return;
     }
-    
+
     socket.emit('CHAT_MESSAGE', user.displayName, user._id, message, directChatData.directChatId);
     setMessage('');
     messageInputRef.current.blur();
@@ -118,8 +127,8 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
       userId: user._id,
       displayName: user.displayName,
       room: directChatData.directChatId,
-      msg: message
-    }
+      msg: message,
+    };
     saveNewMessage(comment);
   }
 
@@ -128,8 +137,6 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
     messages.push(msgObj);
     setMessageList([...messages]);
   }
-
-    
 
   function onInputChange(evt, setValue) {
     const newValue = evt.currentTarget.value;
@@ -166,52 +173,66 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
             )}
           </div> */}
           {directChatData && directChatData?.directChatId && (
-            <div className="col-md-12">
-              <div className="mb-2 d-flex justify-content-between">
-                <h1 className="fs-3">{directChatData.friend?.displayName}</h1>
-                <button className="btn btn-danger" onClick={(evt) => onLeaveRoom()}>
-                  Leave
+            <div className="">
+              <div className="mb-1 d-flex align-items-center">
+                <button className="btn btn-warning btn-sm me-1" onClick={(evt) => onLeaveRoom()}>
+                  <FontAwesomeIcon icon={faArrowLeft} />
                 </button>
+                <div className="animate__animated animate__bounce">{directChatData.friend?.displayName}</div>
+                
               </div>
-
-              <div className="scroll-item mb-3 border border-dark p-3">
-                {_.map(messageList, (messageListItem) => (
-                  <div>
-                    <div className="item mb-2">
-                      <div className="item-header d-flex justify-content-between">
-                        <div>{messageListItem.username}</div>
-                      </div>
-                      <div className={messageListItem.userId === user._id ? 'd-flex flex-column align-items-end' : 'd-flex flex-column align-items-start'}> 
-                        <div  className={messageListItem.userId === user._id ? 'outbound-msg' : 'inbound-msg' }>{messageListItem.msg}</div>
-                        <div className="timestamp">{moment(messageListItem.timestamp).fromNow()}</div>
+              {!messagesPending && (
+                <div className="scroll-item  card mb-1   p-3">
+                  {_.map(messageList, (messageListItem) => (
+                    <div>
+                      <div className="item mb-2">
+                        <div className="item-header d-flex justify-content-between">
+                          <div>{messageListItem.username}</div>
+                        </div>
+                        <div
+                          className={
+                            messageListItem.userId === user._id
+                              ? 'd-flex flex-column align-items-end'
+                              : 'd-flex flex-column align-items-start'
+                          }
+                        >
+                          <div
+                            className={messageListItem.userId === user._id ? 'outbound-msg' : 'inbound-msg text-break'}
+                          >
+                            {messageListItem.msg}
+                          </div>
+                          <div className="timestamp">{moment(messageListItem.timestamp).fromNow()}</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
 
-                <div className="messages-end"></div>
-                <div ref={messagesEndRef}></div>
-              </div>
+                  <div className="messages-end"></div>
+                  <div ref={messagesEndRef}></div>
+                </div>
+              )}
 
               <form className="">
                 <div className="mb-2">
                   <label htmlFor="message" className="form-label visually-hidden">
                     Your Message
                   </label>
-                  <input
-                    id="message"
-                    className="form-control"
-                    value={message}
-                    ref={messageInputRef}
-                    onChange={(evt) => onInputChange(evt, setMessage)}
-                    onBlur={(evt) => setInputFocused(false)}
-                    onFocus={(evt) => setInputFocused(true)}
-                  ></input>
+                  <div className="input-group">
+                    <input
+                      id="message"
+                      className="form-control"
+                      value={message}
+                      ref={messageInputRef}
+                      onChange={(evt) => onInputChange(evt, setMessage)}
+                      onBlur={(evt) => setInputFocused(false)}
+                      onFocus={(evt) => setInputFocused(true)}
+                    ></input>
+                    <button type="submit" className="btn btn-primary" onClick={(evt) => onSendMessage(evt)}>
+                      <FontAwesomeIcon icon={faPaperPlane} />
+                    </button>
+                  </div>
                 </div>
                 <div className="mb-2 d-flex">
-                  <button type="submit" className="btn btn-primary me-3" onClick={(evt) => onSendMessage(evt)}>
-                    Send
-                  </button>
                   <div className="fst-italic">{typingMessage}</div>
                 </div>
               </form>

@@ -47,7 +47,7 @@ function FriendRequests({ auth, user, showSuccess }) {
     }
     sentRequests = [...updatedRequests];
     setFriendRequests(updatedRequests);
-    toast.success(`You are now friends with ${data.receiver?.displayName}`)
+    toast.success(`You are now friends with ${data.receiver?.displayName}`);
   });
 
   const requestAcceptedReceiver = useCallback((data) => {
@@ -59,7 +59,7 @@ function FriendRequests({ auth, user, showSuccess }) {
     }
     sentRequests = [...updatedRequests];
     setSentFriendRequests(updatedRequests);
-    toast.success(`You are now friends with ${data.sender?.displayName}`)
+    toast.success(`You are now friends with ${data.sender?.displayName}`);
   });
 
   const requestRejectReceiver = useCallback((data) => {
@@ -71,7 +71,6 @@ function FriendRequests({ auth, user, showSuccess }) {
     }
     sentRequests = [...updatedRequests];
     setSentFriendRequests(updatedRequests);
-   
   });
   const requestRejectSender = useCallback((data) => {
     const updatedRequests = [];
@@ -82,8 +81,6 @@ function FriendRequests({ auth, user, showSuccess }) {
     }
     sentRequests = [...updatedRequests];
     setFriendRequests(updatedRequests);
-    
-    
   });
 
   useEffect(() => {
@@ -97,7 +94,7 @@ function FriendRequests({ auth, user, showSuccess }) {
 
     socket.on('REQUEST_RECEIVED', (message) => {
       getFriendRequests();
-      toast.success(message)
+      toast.success(message);
     });
 
     socket.on('REQUEST_SENT', (message) => {
@@ -187,7 +184,6 @@ function FriendRequests({ auth, user, showSuccess }) {
           receiver: friend,
         };
         socket.emit('ACCEPT_REQUEST', data);
-        
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -223,7 +219,7 @@ function FriendRequests({ auth, user, showSuccess }) {
           sender: user,
           receiver: friend,
         };
-        toast.warning(`Friend request from ${friend.displayName} rejected`)
+        toast.warning(`Friend request from ${friend.displayName} rejected`);
         socket.emit('REJECT_REQUEST', data);
       })
       .catch((err) => {
@@ -262,7 +258,7 @@ function FriendRequests({ auth, user, showSuccess }) {
         };
 
         socket.emit('CANCEL_REQUEST', data);
-        toast.warning(`Friend request to ${friend.displayName} canceled`)
+        toast.warning(`Friend request to ${friend.displayName} canceled`);
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -287,33 +283,41 @@ function FriendRequests({ auth, user, showSuccess }) {
       {friendRequests &&
         friendRequests.length > 0 &&
         _.map(friendRequests, (request) => (
-          <div className="card p-1 common-room">
-            <div>{request.sender.displayName}</div>
-            <div class="text-primary" onClick={(evt) => acceptRequest(request.sender)}>
-              Accept
-            </div>
-            <div class="text-primary" onClick={(evt) => rejectRequest(request.sender)}>
-              Reject
+          <div className="card p-1">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex">
+                <div className="me-3">{request.sender.displayName}</div>
+                <button class="btn btn-primary btn-sm" onClick={(evt) => acceptRequest(request.sender)}>
+                  Accept
+                </button>
+              </div>
+              <button class="btn btn-danger btn-sm" onClick={(evt) => rejectRequest(request.sender)}>
+                Reject
+              </button>
             </div>
           </div>
         ))}
-      {!friendRequests || (friendRequests.length === 0 && <div className="fst-italic">No incoming requests pending</div>)}
-      <div className="mb-3"></div>
+      {!friendRequests ||
+        (friendRequests.length === 0 && <div className="fst-italic">No incoming requests pending</div>)}
+        <div className="mb-3"></div>
+      <div className="mb-1 border-bottom border-secondary border-2"></div>
       <h3 className="fs-5">Sent Requests</h3>
-      {!sentFriendRequests || sentFriendRequests.length === 0 && <div className="fst-italic">No sent requests pending</div> }
+      {!sentFriendRequests ||
+        (sentFriendRequests.length === 0 && <div className="fst-italic">No sent requests pending</div>)}
       {sentFriendRequests &&
         sentFriendRequests.length > 0 &&
         _.map(sentFriendRequests, (sentRequest) => (
           <div>
-            <div className="card p-1 common-room">
-              <div>{sentRequest.friend.displayName}</div>
-              <div class="text-danger" onClick={(evt) => cancelSentRequest(sentRequest.friend)}>
-                Cancel
+            <div className="card p-1 mb-1">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>{sentRequest.friend.displayName}</div>
+                <button class="btn btn-warning btn-sm" onClick={(evt) => cancelSentRequest(sentRequest.friend)}>
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
         ))}
-       
     </div>
   );
 }

@@ -3,7 +3,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { SocketContext } from '../context/socket';
 
-function FriendList({ auth, user, setFriendList, getDirectChatData }) {
+function FriendList({ auth, user, setFriendList, getDirectChatData, setLoadingTalkRoom, setLoadingFriends }) {
   const [error, setError] = useState('');
   const [friendConnections, setFriendConnections] = useState([]);
   
@@ -25,10 +25,12 @@ function FriendList({ auth, user, setFriendList, getDirectChatData }) {
   }, [auth]);
 
   function getFriends() {
+    setLoadingFriends(true);
     axios(`${process.env.REACT_APP_API_URL}/api/friend/friend-list/${auth.payload._id}`, {
       method: 'get',
     })
       .then((res) => {
+        setLoadingFriends(false);
         setFriendConnections(res.data);
         setFriendList(res.data);
       })
@@ -50,6 +52,7 @@ function FriendList({ auth, user, setFriendList, getDirectChatData }) {
   }
 
   function joinDirectChat(friend) {
+    setLoadingTalkRoom(true);
     console.log(friend);
     if(!friend || !user) {
       return;
@@ -70,6 +73,7 @@ function FriendList({ auth, user, setFriendList, getDirectChatData }) {
             displayName: friend.displayName
           }
         }
+        setLoadingTalkRoom(false);
         getDirectChatData(directChatData);
       })
       .catch((err) => {
@@ -95,20 +99,20 @@ function FriendList({ auth, user, setFriendList, getDirectChatData }) {
   }
 
   return (
-    <div className="mb-3">
-      
+    <div className="mb-1 border-secondary border-bottom border-2">
       {friendConnections &&
         friendConnections.length > 0 &&
         _.map(friendConnections, (connection) => (
           <div className="card p-2 mb-1">
-            <div className="d-flex justify-content-between">
+            <div className="d-flex justify-content-between align-items-center">
             <div>{connection.friend.displayName}</div>
-            <button className="btn btn-small btn-primary" onClick={(evt) => joinDirectChat(connection.friend)}>Chat</button>
+            <button className="btn btn-sm btn-primary" onClick={(evt) => joinDirectChat(connection.friend)}>Chat</button>
             </div>
           </div>
         ))}
 
       {!friendConnections || (friendConnections.length === 0 && <div className="fst-italic">No Friends Found</div>)}
+      <div className="mb-3"></div>
     </div>
   );
 }
