@@ -10,7 +10,7 @@ function InputField({ label, id, className, error, shouldValidate = true, ...res
       <label className="" htmlFor={id}>
         {label}
       </label>
-      <input className={inputClasses} id={id} {...rest} />
+      <input className={inputClasses + ', bg-light text-dark'} id={id} {...rest} />
 
       {shouldValidate && error && <div className="text-danger mt-1">{error}</div>}
     </div>

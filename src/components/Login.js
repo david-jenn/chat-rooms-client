@@ -4,6 +4,7 @@ import jwtDecode from 'jwt-decode';
 import _ from 'lodash';
 import InputField from './InputField';
 
+
 function Login({onLogin}) {
 
   const [email, setEmail] = useState('');
@@ -73,15 +74,16 @@ function Login({onLogin}) {
 
 
   return (
-    <div>
+    <div className="login">
     <h1>Login</h1>
     <form>
       <InputField
         label="Email"
         id="LoginForm-email"
+        
         type="email"
         autoComplete="email"
-        placeholder="name@example.com"
+        placeholder=""
         value={email}
         onChange={(evt) => onInputChange(evt, setEmail)}
         error={emailError}
@@ -90,6 +92,7 @@ function Login({onLogin}) {
       <InputField
         label="Password"
         id="LoginForm-password"
+      
         type="password"
         autoComplete="current-password"
         placeholder=""

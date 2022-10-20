@@ -1,44 +1,45 @@
 
 
-$white:    #fff !default;
-$gray-100: #f8f9fa !default;
-$gray-200: #e9e9e8 !default;
-$gray-300: #dee2e6 !default;
-$gray-400: #ced4da !default;
-$gray-500: #adb5bd !default;
-$gray-600: #6c757d !default;
-$gray-700: #495057 !default;
-$gray-800: #343a40 !default;
-$gray-900: #212529 !default;
-$black:    #000 !default;
+$blue: #0d6efd;
+  $indigo: #6610f2;
+  $purple: #6f42c1;
+  $pink: #d63384;
+  $red: #dc3545;
+  $orange: #fd7e14;
+  $yellow: #ffc107;
+  $green: #198754;
+  $teal: #20c997;
+  $cyan: #0dcaf0;
+  $black: #000;
+  $white: #fff;
+  $gray: #6c757d;
+  $gray-dark: #343a40;
+  $gray-100: #f8f9fa;
+  $gray-200: #e9ecef;
+  $gray-300: #dee2e6;
+  $gray-400: #ced4da;
+  $gray-500: #adb5bd;
+  $gray-600: #6c757d;
+  $gray-700: #495057;
+  $gray-800: #343a40;
+  $gray-900: #212529;
+  $primary: #0d6efd;
+  $secondary: #6c757d;
+  $success: #198754;
+  $info: #0dcaf0;
+  $warning: #ffc107;
+  $danger: #dc3545;
+  $light: #f8f9fa;
+  $dark: #212529;
+  $bs-body-bg: #212529;
 
-$blue:    #3a8fd9 !default;
-$indigo:  #6610f2 !default;
-$purple:  #3EA5DB !default;
-$pink:    #B4D5DB!default;
-$red:     #fc346f !default;
-$orange:  #fd7e14 !default;
-$yellow:  #ffc107 !default;
-$green:   #41d7a7 !default;
-$teal:    #528fb3 !default;
-$cyan:    #39cbfb !default;
-
-$primary: #e83283  !default;
-$secondary: rgba($white, .4) !default;
-$success: $green !default;
-$info: $cyan !default;
-$warning: $yellow !default;
-$danger: $orange !default;
-$light: $gray-200 !default;
-$dark: $gray-900 !default;
-
-
-
-@import "~bootswatch/dist/quartz/variables";
+// @import "~bootswatch/dist/default/variables";
 @import "~bootstrap/scss/bootstrap";
-@import "~bootswatch/dist/quartz/bootswatch";
+// @import "~bootswatch/dist/quartz/bootswatch";
 
+.background {
 
+}
 
 // cerulean
 .friend-wrapper {
@@ -49,6 +50,17 @@ $dark: $gray-900 !default;
 
 .friends-vertical {
   min-height: 50vh;
+}
+
+.login {
+  max-width: 600px;
+  margin:auto
+}
+
+
+.scroll-item {
+  
+  border-radius: 14px;
 }
 
 
@@ -124,6 +136,7 @@ $dark: $gray-900 !default;
 
 .scroll-item {
   overflow-y: scroll;
+
   // height: 50vh;
 }
 
@@ -138,8 +151,10 @@ $dark: $gray-900 !default;
   cursor: pointer;
 }
 
+
+
 .inbound-msg {
-  background-color: lightgray;
+  background-color: $light;
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 5px;
@@ -150,8 +165,12 @@ $dark: $gray-900 !default;
   
 }
 
+.input-box {
+  
+  
+}
 .outbound-msg {
-  background-color: #2fa4e7;
+  background-color: #8A6CA6;
   color:white;
   padding-left: 20px;
   padding-right: 20px;
@@ -168,21 +187,21 @@ $dark: $gray-900 !default;
 
 /* width */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 5px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: $pink;
+  background: $light;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: $primary
+  background: $dark
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #c5236c ;
+  background: $dark ;
 }
 

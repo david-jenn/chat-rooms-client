@@ -3,16 +3,19 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import axios from 'axios';
-
+import 'animate.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faArrowLeft, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
+import LoadingIcon from './LoadingIcon';
+
 import { SocketContext } from '../context/socket';
+import { io } from 'socket.io-client';
 
 const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
-function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData }) {
+function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, loadingTalkRoom }) {
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
   const ccUsername = auth.payload.displayName;
@@ -22,6 +25,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   const [typingMessage, setTypingMessage] = useState('');
   const [messageList, setMessageList] = useState([]);
   const [messagesPending, setMessagesPending] = useState(false);
+  const [firstMessage, setFirstMessage] = useState(false);
 
   const [roomData, setRoomData] = useState(null);
   const [userList, setUserList] = useState([]);
@@ -29,19 +33,16 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   const currentTypers = [];
   const [signedIn, setSignedIn] = useState(false);
   const [render, setRender] = useState(0);
-  const [roomJoined, setRoomJoined] = useState(false);
+ 
   let messagesLoaded = false;
 
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    if (!messagesPending) {
+    if (directChatData && directChatData?.directChatId && !messagesPending && !loadingTalkRoom) {
       scrollToBottom();
     }
-
-    //Might be expensive?
   });
-  
 
   useEffect(() => {
     console.log(directChatData);
@@ -54,6 +55,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
     }
 
     if (!messagesLoaded) {
+      setFirstMessage(false);
       fetchRoomMessages();
     }
 
@@ -61,12 +63,15 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
     const room = directChatData.directChatId;
 
     if (socket) {
-      socket.emit('joinRoom', { username, room });
-      setRoomJoined(true);
+       socket.emit('joinRoom', { username, room });
+     
 
       socket.on('message', (message) => {
         console.log(message);
-        outputMessage(message);
+        if (message.room === directChatData.directChatId) {
+          setFirstMessage(true);
+          outputMessage(message);
+        }
       });
       socket.on('roomUsers', ({ room, users }) => {
         setUserList(users);
@@ -77,11 +82,16 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
         setTypingMessage(message);
       });
 
-      return () => {};
+      return () => {
+        socket.off('message');
+        socket.off('roomUsers');
+        socket.off('typingOutput');
+      };
     }
   }, [socket?.connected, directChatData]);
 
   function fetchRoomMessages() {
+    console.log('fetching messages');
     setMessagesPending(true);
     axios(`${process.env.REACT_APP_API_URL}/api/comment/${directChatData.directChatId}/list`, {
       method: 'get',
@@ -115,12 +125,14 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   //
 
   function onSendMessage(evt) {
+    setFirstMessage(true);
     evt.preventDefault();
     if (!message) {
       return;
     }
-
+    const data = {friendId: directChatData.friend.id, message, userId: user._id}
     socket.emit('CHAT_MESSAGE', user.displayName, user._id, message, directChatData.directChatId);
+    socket.emit('DIRECT_MESSAGE', data)
     setMessage('');
     messageInputRef.current.blur();
     const comment = {
@@ -154,36 +166,33 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
   }
   function onLeaveRoom() {
     console.log('leaving');
-    getDirectChatData(null);
+    setDirectChatData(null);
   }
 
   return (
     <div className="container main-wrapper">
       <div>
         <div className="row">
-          {/* <div className="d-md-block  col-md-2">
-            <div>Users...</div>
-            {userList.length === 0 && <div className="fst-italic">No users found</div>}
-            {userList.length > 0 && (
-              <div>
-                {_.map(userList, (user) => (
-                  <div className="card mb-2">{user.username}</div>
-                ))}
+          {!directChatData ||
+            !directChatData?.directChaId ||
+            messagesPending ||
+            (loadingTalkRoom && (
+              <div className="d-flex justify-content-center mt-5">
+                <LoadingIcon />
               </div>
-            )}
-          </div> */}
-          {directChatData && directChatData?.directChatId && (
+            ))}
+          {directChatData && directChatData?.directChatId && !loadingTalkRoom && (
             <div className="">
               <div className="mb-1 d-flex align-items-center">
                 <button className="btn btn-warning btn-sm me-1" onClick={(evt) => onLeaveRoom()}>
                   <FontAwesomeIcon icon={faArrowLeft} />
                 </button>
-                <div className="animate__animated animate__bounce">{directChatData.friend?.displayName}</div>
-                
+                <div className="animate__animated animate__zoomIn">{directChatData.friend?.displayName}</div>
               </div>
-              {!messagesPending && (
-                <div className="scroll-item  card mb-1   p-3">
-                  {_.map(messageList, (messageListItem) => (
+
+              <div className="scroll-item  border border-dark mb-3   p-3">
+                <div>
+                  {_.map(messageList, (messageListItem, index) => (
                     <div>
                       <div className="item mb-2">
                         <div className="item-header d-flex justify-content-between">
@@ -196,11 +205,40 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
                               : 'd-flex flex-column align-items-start'
                           }
                         >
-                          <div
-                            className={messageListItem.userId === user._id ? 'outbound-msg' : 'inbound-msg text-break'}
-                          >
-                            {messageListItem.msg}
-                          </div>
+                          {index !== messageList.length - 1 && (
+                            <div
+                              className={
+                                messageListItem.userId === user._id
+                                  ? 'outbound-msg text-break'
+                                  : 'inbound-msg text-break'
+                              }
+                            >
+                              {messageListItem.msg}
+                            </div>
+                          )}
+                          {!firstMessage && index === messageList.length - 1 && (
+                            <div
+                              className={
+                                messageListItem.userId === user._id
+                                  ? 'outbound-msg text-break'
+                                  : 'inbound-msg text-break'
+                              }
+                            >
+                              {messageListItem.msg}
+                            </div>
+                          )}
+
+                          {firstMessage && index === messageList.length - 1 && (
+                            <div
+                              className={
+                                messageListItem.userId === user._id
+                                  ? 'outbound-msg text-break animate__animated animate__fadeIn'
+                                  : 'inbound-msg text-break animate__animated animate__fadeIn'
+                              }
+                            >
+                              {messageListItem.msg}
+                            </div>
+                          )}
                           <div className="timestamp">{moment(messageListItem.timestamp).fromNow()}</div>
                         </div>
                       </div>
@@ -210,7 +248,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
                   <div className="messages-end"></div>
                   <div ref={messagesEndRef}></div>
                 </div>
-              )}
+              </div>
 
               <form className="">
                 <div className="mb-2">
@@ -221,6 +259,7 @@ function TalkRoom({ changePage, auth, user, directChatData, getDirectChatData })
                     <input
                       id="message"
                       className="form-control"
+                      placeholder=""
                       value={message}
                       ref={messageInputRef}
                       onChange={(evt) => onInputChange(evt, setMessage)}

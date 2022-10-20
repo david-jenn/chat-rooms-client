@@ -76,7 +76,7 @@ function App() {
   //const navigate = useNavigate();
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100 background">
       <Navbar auth={auth} onLogout={onLogout} changePage={changePage} changeSubPage={changeSubPage} />
       <ToastContainer />
       <main className="container-fluid flex-grow-1">

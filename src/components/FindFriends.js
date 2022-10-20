@@ -116,7 +116,7 @@ function FindFriends({ auth, user, friendList }) {
   }
 
   return (
-    <div className="mb-1 pb-3 border-2 border-bottom border-secondary">
+    <div className="mb-1 pb-3 border-2 border-bottom">
      
       <label htmlFor="room-search-input" className="form-label d-none">
         Search Users
@@ -124,7 +124,7 @@ function FindFriends({ auth, user, friendList }) {
       <input
         id="search-display-name"
         type="username"
-        className="form-control"
+        className="form-control mb-1"
         placeholder="Search Users"
         onChange={(evt) => onInputChange(evt, setFriendSearch)}
         onFocus={(evt) => fetchUsers(friendSearch)}
@@ -135,7 +135,7 @@ function FindFriends({ auth, user, friendList }) {
         <div className="">
           <div className="">
             {_.map(searchResults, (result) => (
-              <div key={result._id} className="friend-search-item" >
+              <div key={result._id} className="friend-search-item mb-1" >
                 <div className="card p-1">
                   <div className="d-flex justify-content-between">
                     <div>{result.displayName}</div>

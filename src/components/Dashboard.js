@@ -9,10 +9,22 @@ function Dashboard({ auth, changePage, changeSubPage, user, showSuccess }) {
   const socket = useContext(SocketContext);
   const [directChatData, setDirectChatData] = useState(null);
   const [loadingTalkRoom, setLoadingTalkRoom] = useState(false);
+  const [directChatIds, setDirectChatIds] = useState(null);
 
-  function getDirectChatData(data) {
-    setDirectChatData(data);
-  }
+  const username = user.displayName;
+  useEffect(() => {
+    console.log(directChatIds);
+    if(directChatIds) {
+      for (const friend of directChatIds) {
+        socket.emit('joinRoom', { username, friend });
+        socket.on('message', (message) => {
+          console.log(message);
+        })
+      }
+    }
+    
+  }, [directChatIds]);
+  
 
   return (
     <div className="row dashboard">
@@ -21,7 +33,9 @@ function Dashboard({ auth, changePage, changeSubPage, user, showSuccess }) {
           <Friends
             auth={auth}
             user={user}
-            getDirectChatData={getDirectChatData}
+            directChatData={directChatData}
+            setDirectChatData={setDirectChatData}
+            setDirectChatIds={setDirectChatIds}
             showSuccess={showSuccess}
             setLoadingTalkRoom={setLoadingTalkRoom}
           />
@@ -31,15 +45,16 @@ function Dashboard({ auth, changePage, changeSubPage, user, showSuccess }) {
        {loadingTalkRoom && <div className="d-flex justify-content-center mt-5">
           <LoadingIcon />
         </div>}
-        {!loadingTalkRoom &&<div>
+        <div>
           <TalkRoom
             changePage={changePage}
             auth={auth}
             user={user}
             directChatData={directChatData}
-            getDirectChatData={getDirectChatData}
+            setDirectChatData={setDirectChatData}
+            loadingTalkRoom={loadingTalkRoom}
           />
-        </div> }
+        </div> 
       </div>
       {/* <div className="friend-container col-md-3">
         <div>Other data</div>
