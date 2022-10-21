@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import _ from 'lodash';
+import _, { update } from 'lodash';
 import { SocketContext } from '../context/socket';
 
 function FriendList({
@@ -27,25 +27,30 @@ function FriendList({
       getFriends();
     });
     socket.on('DIRECT_MESSAGE_RECEIVED', (data) => {
-      console.log(data.friendId);
-      console.log(directChatData?.friend.id);
-      
-      if(data.friendId === directChatData?.friend.id) { return; }
-      const connections = [...friendConnections];
-      for (const connection of connections) {
-        if (connection.friend.id === data.friendId) {
-          !connection.recentMessageCount ? connection.recentMessageCount = 1 : connection.recentMessageCount++;
-        }
+      if (data.friendId === directChatData?.friend.id) {
+        return;
       }
-      console.log(connections);
-      setFriendConnections([...connections]);
+      // TODO UPDATE DB.
+
+      if (friendConnections.length > 0) {
+        const connections = [...friendConnections];
+
+        for (const connection of connections) {
+          if (connection.friend.id === data.friendId) {
+            !connection.unReadCount ? (connection.unReadCount = 1) : connection.unReadCount++;
+            updateUnread(connection._id, connection.unReadCount);
+          }
+        }
+        console.log(connections);
+        setFriendConnections([...connections]);
+      }
     });
     return () => {
       socket.off('REQUEST_ACCEPTED_SENDER');
       socket.off('REQUEST_ACCEPTED_RECEIVER');
-      socket.off('DIRECT_MESSAGE_RECEIVED')
+      socket.off('DIRECT_MESSAGE_RECEIVED');
     };
-  }, [auth]);
+  }, [auth, user, directChatData]);
 
   function getFriends() {
     setLoadingFriends(true);
@@ -53,7 +58,6 @@ function FriendList({
       method: 'get',
     })
       .then((res) => {
-        console.log(res.data);
         setLoadingFriends(false);
         setFriendConnections(res.data);
         setFriendList(res.data);
@@ -86,10 +90,11 @@ function FriendList({
     setDirectChatData(null);
     const connections = [...friendConnections];
     const connection = connections.find((connection) => connection.friend.id === friend.id);
-    connection.recentMessageCount = '';
+    console.log(connection);
+    updateUnread(connection._id, 0);
+    connection.unReadCount = 0;
     setFriendConnections([...connections]);
 
-    console.log(friend);
     if (!friend || !user) {
       return;
     }
@@ -102,7 +107,7 @@ function FriendList({
     })
       .then((res) => {
         console.log(res);
-        const directChatData = {
+        const chatData = {
           directChatId,
           friend: {
             id: friend.id,
@@ -110,7 +115,41 @@ function FriendList({
           },
         };
         setLoadingTalkRoom(false);
-        setDirectChatData(directChatData);
+        setDirectChatData(chatData);
+      })
+      .catch((err) => {
+        const resError = err?.response?.data?.error;
+        if (resError) {
+          if (typeof resError === 'string') {
+            setError(resError);
+            console.log(resError);
+          } else if (resError.details) {
+            setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
+          } else {
+            setError(JSON.stringify(resError));
+          }
+        } else {
+          setError(err.message);
+        }
+      });
+  }
+
+  function updateUnread(connectionId, unreadCount) {
+    console.log('in update');
+    console.log(connectionId);
+    console.log(unreadCount);
+    // if(!connectionId) {
+    //   return;
+    // }
+    // if(!unreadCount || unreadCount !== 0) {
+    //   return;
+    // }
+    axios(`${process.env.REACT_APP_API_URL}/api/friend/update-unread`, {
+      method: 'put',
+      data: { connectionId, unreadCount },
+    })
+      .then((res) => {
+        console.log(res);
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
@@ -137,15 +176,20 @@ function FriendList({
           <div className="card p-2 mb-1">
             <div className="d-flex justify-content-between align-items-center">
               <div>{connection.friend.displayName}</div>
-              <button className="btn btn-sm btn-primary" onClick={(evt) => joinDirectChat(connection.friend)}>
-                Chat
-              </button>
-            </div>
-            {connection.recentMessageCount && (
-              <div className="d-flex">
-                <div className="me-2 text-primary">&#8226;</div> <div>{connection.recentMessageCount}</div>{' '}
+
+              <div>
+                {connection.unReadCount !== 0 && (
+                  <span className="me-3 badge rounded-pill bg-danger">{connection.unReadCount}</span>
+                )}
+                <button
+                  className="btn btn-sm btn-primary position-relative"
+                  onClick={(evt) => joinDirectChat(connection.friend)}
+                >
+                  Chat
+                  
+                </button>
               </div>
-            )}
+            </div>
           </div>
         ))}
 
