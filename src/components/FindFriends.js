@@ -85,7 +85,9 @@ function FindFriends({ auth, user, friendList }) {
         sender: sender,
         friend: { id: friend._id, displayName: friend.displayName },
         accepted: false,
+        cancelled: false,
       },
+      
     })
       .then((res) => {
         const friendId = friend._id;
@@ -96,16 +98,15 @@ function FindFriends({ auth, user, friendList }) {
        
       })
       .catch((err) => {
+        console.error(err);
+    
         const resError = err?.response?.data?.error;
         if (resError) {
           if (typeof resError === 'string') {
             setError(resError);
             console.log(resError);
           } else if (resError.details) {
-            setError(_.map(resError.details, (x, index) => <div key={index}>{x.message}</div>));
-
-            for (const detail of resError.details) {
-            }
+            setError(_.map(resError.details, (x) => <div>{x.message}</div>));
           } else {
             setError(JSON.stringify(resError));
           }

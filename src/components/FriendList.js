@@ -20,10 +20,12 @@ function FriendList({
 
   useEffect(() => {
     getFriends();
-    socket.on('REQUEST_ACCEPTED_SENDER', (message) => {
+    socket.on('REQUEST_ACCEPTED_SENDER_LIST', (message) => {
+      console.log('received')
       getFriends();
     });
-    socket.on('REQUEST_ACCEPTED_RECEIVER', (message) => {
+    socket.on('REQUEST_ACCEPTED_RECEIVER_LIST', (message) => {
+      console.log('receieved')
       getFriends();
     });
     socket.on('DIRECT_MESSAGE_RECEIVED', (data) => {
@@ -46,8 +48,8 @@ function FriendList({
       }
     });
     return () => {
-      socket.off('REQUEST_ACCEPTED_SENDER');
-      socket.off('REQUEST_ACCEPTED_RECEIVER');
+      socket.off('REQUEST_ACCEPTED_SENDER_LIST');
+      socket.off('REQUEST_ACCEPTED_RECEIVER_LIST');
       socket.off('DIRECT_MESSAGE_RECEIVED');
     };
   }, [auth, user, directChatData]);

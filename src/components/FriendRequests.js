@@ -17,6 +17,7 @@ function FriendRequests({ auth, user, showSuccess }) {
   let receivedRequests = [];
 
   const requestCancelSender = useCallback((data) => {
+    console.log('cancel sender');
     const updatedRequests = [];
     for (const request of sentRequests) {
       if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
@@ -28,6 +29,7 @@ function FriendRequests({ auth, user, showSuccess }) {
   });
 
   const requestCancelReceiver = useCallback((data) => {
+    console.log('cancel receiver')
     const updatedRequests = [];
     for (const request of receivedRequests) {
       if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
@@ -39,6 +41,7 @@ function FriendRequests({ auth, user, showSuccess }) {
   });
 
   const requestAcceptedSender = useCallback((data) => {
+    console.log('in sender')
     const updatedRequests = [];
     for (const request of receivedRequests) {
       if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
@@ -51,6 +54,7 @@ function FriendRequests({ auth, user, showSuccess }) {
   });
 
   const requestAcceptedReceiver = useCallback((data) => {
+    console.log('in receiver');
     const updatedRequests = [];
     for (const request of sentRequests) {
       if (request.sender?.id === data.sender._id && request.friend?.id !== data.receiver?.id) {
@@ -240,6 +244,7 @@ function FriendRequests({ auth, user, showSuccess }) {
   }
 
   function cancelSentRequest(friend) {
+    console.log(friend);
     const userData = {
       id: user._id,
       displayName: user.displayName,
