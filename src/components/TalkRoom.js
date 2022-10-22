@@ -130,7 +130,7 @@ function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, l
     if (!message) {
       return;
     }
-    const data = {friendId: directChatData.friend.id, message, userId: user._id}
+    const data = {friendId: directChatData.friend.id, message, userId: user._id, directChatId: directChatData.directChatId}
     socket.emit('CHAT_MESSAGE', user.displayName, user._id, message, directChatData.directChatId);
     socket.emit('DIRECT_MESSAGE', data)
     setMessage('');
