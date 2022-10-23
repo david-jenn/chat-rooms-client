@@ -9,7 +9,7 @@ import FindFriends from './FindFriends';
 import FriendList from './FriendList';
 import FriendRequests from './FriendRequests';
 
-function Friends({ auth, user, directChatData, setDirectChatData, setDirectChatIds, showSuccess, setLoadingTalkRoom }) {
+function Friends({ auth, user, directChatData, setDirectChatData, setDirectChatIds, showSuccess, setLoadingTalkRoom, setFocus }) {
   const [error, setError] = useState('');
   const [friendList, setFriendList] = useState([]);
   const [loadingFriends, setLoadingFriends] = useState(false);
@@ -31,6 +31,7 @@ function Friends({ auth, user, directChatData, setDirectChatData, setDirectChatI
             setDirectChatIds={setDirectChatIds}
             setLoadingTalkRoom={setLoadingTalkRoom}
             setLoadingFriends={setLoadingFriends}
+            setFocus={setFocus}
           />
         </div>
         <div>

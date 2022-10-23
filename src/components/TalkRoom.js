@@ -15,7 +15,7 @@ import { io } from 'socket.io-client';
 
 const URL = 'http://localhost:5000'; //http://localhost:5000 https://talk-rooms-server-david-jenn.herokuapp.com/
 
-function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, loadingTalkRoom }) {
+function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, loadingTalkRoom, setFocus }) {
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
   const ccUsername = auth.payload.displayName;
@@ -168,6 +168,7 @@ function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, l
   function onLeaveRoom() {
     console.log('leaving');
     setDirectChatData(null);
+    setFocus('friends');
   }
 
   return (
@@ -185,10 +186,10 @@ function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, l
           {directChatData && directChatData?.directChatId && !loadingTalkRoom && (
             <div className="">
               <div className="mb-1 d-flex align-items-center">
-                <button className="btn btn-warning btn-sm me-1" onClick={(evt) => onLeaveRoom()}>
+                <button className="btn btn-primary btn-sm me-3" onClick={(evt) => onLeaveRoom()}>
                   <FontAwesomeIcon icon={faArrowLeft} />
                 </button>
-                <div className="animate__animated animate__zoomIn">{directChatData.friend?.displayName}</div>
+                <div className="">{directChatData.friend?.displayName}</div>
               </div>
 
               <div className="scroll-item  border border-dark mb-3   p-3">

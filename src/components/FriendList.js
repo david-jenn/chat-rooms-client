@@ -12,6 +12,7 @@ function FriendList({
   setDirectChatIds,
   setLoadingTalkRoom,
   setLoadingFriends,
+  setFocus
 }) {
   const [error, setError] = useState('');
   const [friendConnections, setFriendConnections] = useState([]);
@@ -133,6 +134,7 @@ function FriendList({
         };
         setLoadingTalkRoom(false);
         setDirectChatData(chatData);
+        setFocus('room')
       })
       .catch((err) => {
         const resError = err?.response?.data?.error;
