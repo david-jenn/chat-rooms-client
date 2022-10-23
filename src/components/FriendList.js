@@ -15,28 +15,36 @@ function FriendList({
 }) {
   const [error, setError] = useState('');
   const [friendConnections, setFriendConnections] = useState([]);
+  const [newFriendLoad, setNewFriendLoad] = useState(0);
+
+  let connections = [];
 
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    getFriends();
-    socket.on('REQUEST_ACCEPTED_SENDER_LIST', (message) => {
-      console.log('received')
+    console.log(friendConnections);
+    console.log('effect');
+    console.log('hello');
+    
+      getFriends();
+    
+
+    socket.on('REQUEST_ACCEPTED_SENDER_LIST', (data) => {
       getFriends();
     });
-    socket.on('REQUEST_ACCEPTED_RECEIVER_LIST', (message) => {
-      console.log('receieved')
+    socket.on('REQUEST_ACCEPTED_RECEIVER_LIST', (data) => {
       getFriends();
     });
     socket.on('DIRECT_MESSAGE_RECEIVED', (data) => {
+      console.log('message receieved!');
+      console.log(data);
+      console.log(connections);
       if (data.friendId === directChatData?.friend.id) {
         return;
       }
       // TODO UPDATE DB.
-
-      if (friendConnections.length > 0) {
-        const connections = [...friendConnections];
-
+      console.log(friendConnections);
+      if (connections.length > 0) {
         for (const connection of connections) {
           if (connection.friend.id === data.friendId) {
             !connection.unReadCount ? (connection.unReadCount = 1) : connection.unReadCount++;
@@ -60,8 +68,15 @@ function FriendList({
       method: 'get',
     })
       .then((res) => {
+       
         setLoadingFriends(false);
-        setFriendConnections(res.data);
+        if (res.data) {
+          connections = res.data;
+          setFriendConnections([...connections]);
+        }
+
+        console.log('setting connections from db');
+        console.log(res.data);
         setFriendList(res.data);
         const chatIds = res.data.map((friend) => {
           const connectionArray = [friend._id, user._id];
@@ -188,7 +203,6 @@ function FriendList({
                   onClick={(evt) => joinDirectChat(connection.friend)}
                 >
                   Chat
-                  
                 </button>
               </div>
             </div>

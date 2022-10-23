@@ -111,6 +111,7 @@ function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, l
   }
 
   function saveNewMessage(message) {
+    console.log(message);
     axios(`${process.env.REACT_APP_API_URL}/api/comment/new`, {
       method: 'put',
       data: message,
@@ -122,7 +123,7 @@ function TalkRoom({ changePage, auth, user, directChatData, setDirectChatData, l
         console.log(err);
       });
   }
-  //
+  
 
   function onSendMessage(evt) {
     setFirstMessage(true);

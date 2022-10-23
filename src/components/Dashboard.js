@@ -20,11 +20,13 @@ function Dashboard({ auth, changePage, changeSubPage, user, showSuccess }) {
       for (const friend of directChatIds) {
         if (!friend.endsWith('undefined')) {
           socket.emit('joinRoom', { username, friend });
-          socket.on('message', (message) => {
-            console.log(message);
-          });
+         
         }
       }
+    }
+
+    return () => {
+    
     }
   }, [directChatIds]);
 
