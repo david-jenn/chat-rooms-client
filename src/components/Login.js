@@ -36,7 +36,7 @@ function Login({onLogin}) {
     setError('');
     setSuccess('');
     setPending(true);
-
+    console.log(process.env.REACT_APP_API_URL)
     axios(`${process.env.REACT_APP_API_URL}/api/user/login`, { method: 'post', data: {email, password}})
       .then((res) => {
         setPending(false);
